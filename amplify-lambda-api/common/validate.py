@@ -248,7 +248,10 @@ def validated(op, validate_body=True):
                     else get_claims(event, context, token)
                 )
 
-                current_user = claims["username"]
+                if "custom:upn" in claims:
+                    current_user = claims["custom:upn"]
+                else:
+                    current_user = claims["username"] = claims["username"]
                 print(f"User: {current_user}")
                 if current_user is None:
                     raise Unauthorized("User not found.")
@@ -311,7 +314,11 @@ def get_claims(event, context, token):
 
         get_email = lambda text: text.split("_", 1)[1] if "_" in text else None
 
-        user = get_email(payload["username"])
+        if "custom:upn" in payload:
+            user = get_email(payload["custom:upn"])
+            print(f"User from custom:upn: {user}")
+        else:
+            user = get_email(payload["username"])
 
         # grab deafault account from accounts table
         dynamodb = boto3.resource("dynamodb")

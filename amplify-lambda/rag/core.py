@@ -381,6 +381,7 @@ def update_object_permissions(current_user, data):
                     object_id
                 )
             )
+            print(f"Query response for {object_id}: {query_response}")
             items = query_response.get("Items")
 
             # If there are no permissions, create the initial item with the current_user as the owner

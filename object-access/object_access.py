@@ -117,10 +117,10 @@ def can_access_objects(event, context, current_user, name, data):
 
             if not item:
                 return {
-                    "statusCode": 403,
+                    "statusCode": 404,
                     "body": json.dumps(
                         {
-                            "message": f"User does not have access to objectId.",
+                            "message": f"No object found for objectId: {object_id}.",
                             "objectId": object_id,
                             "accessType": access_type,
                         }

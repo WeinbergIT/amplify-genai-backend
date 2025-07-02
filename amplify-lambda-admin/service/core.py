@@ -153,6 +153,7 @@ def get_secret(secret_name, region_name):
         return secret_dict
     except ClientError as e:
         print(f"Error getting secret: {e}")
+        print(f"Secret Name: {secret_name}, Region: {region_name}")
         return None
 
 

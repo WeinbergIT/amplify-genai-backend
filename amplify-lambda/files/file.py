@@ -41,7 +41,7 @@ def get_presigned_download_url(event, context, current_user, name, data):
         key = key.split("://")[1]
 
     dynamodb = boto3.resource("dynamodb")
-    s3 = boto3.client("s3")
+    s3 = boto3.client("s3", region_name=os.environ["AWS_REGION"])
     files_table_name = os.environ["FILES_DYNAMO_TABLE"]
 
     # Access the specific table
@@ -460,7 +460,7 @@ def get_presigned_url(event, context, current_user, name, data):
     # print(f"Data is {data}")
     data = data["data"]
 
-    s3 = boto3.client("s3")
+    s3 = boto3.client("s3", region_name=os.environ["AWS_REGION"])
 
     name = data["name"]
     name = re.sub(r"[_\s]+", "_", name)
@@ -491,6 +491,8 @@ def get_presigned_url(event, context, current_user, name, data):
         },
         ExpiresIn=3600,  # Set the expiration time for the presigned URL, in seconds
     )
+    print(f"Presigned URL generated: {presigned_url}")
+    print(f"Region for S3 bucket: {os.environ['AWS_REGION']}")
 
     if file_type in IMAGE_FILE_TYPES:
         print("Generating presigned urls for Image file")
