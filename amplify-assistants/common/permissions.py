@@ -61,22 +61,6 @@ def can_get_group_conversations_data(user, data):
     return True
 
 
-def can_lookup_assistant(user, data):
-    return True
-
-
-def can_share_assistant(user, data):
-    return True
-
-
-def can_scrape_website(user, data):
-    return True
-
-
-def can_rescan_websites(user, data):
-    return True
-
-
 """
 Every service must define the permissions for each operation
 here. The permissions are defined as a dictionary of
@@ -109,10 +93,4 @@ permissions_by_state_type = {
     "/assistant/get_group_conversations_data": {
         "get_group_conversations_data": can_get_group_conversations_data
     },
-    "/assistant/lookup": {"lookup": can_lookup_assistant},
-    "/assistant/add_path": {"add_assistant_path": can_create_assistant},
-    "/assistant/request_access": {"share_assistant": can_share_assistant},
-    "/assistant/validate/assistant_id": {"lookup": can_lookup_assistant},
-    "/assistant/scrape_website": {"scrape_website": can_scrape_website},
-    "/assistant/rescan_websites": {"rescan_websites": can_rescan_websites},
 }

@@ -1,6 +1,7 @@
 import requests
 import json
 
+
 def chat(chat_url, access_token, payload):
     """
     Invoke the specified endpoint with a JSON payload and handle the streamed response.
@@ -81,7 +82,9 @@ def chat(chat_url, access_token, payload):
         return f"Error: {error_msg}", []
 
 
-def chat_streaming(chat_url, access_token, payload, content_handler, meta_handler = lambda x: None):
+def chat_streaming(
+    chat_url, access_token, payload, content_handler, meta_handler=lambda x: None
+):
     """
     Invoke the specified endpoint with a JSON payload and handle the streamed response
     by providing the streamed events to the content_handler and meta_handler.
@@ -139,8 +142,8 @@ def chat_streaming(chat_url, access_token, payload, content_handler, meta_handle
 
     """
     headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json'
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
     }
 
     # Send POST request to the specified URL
@@ -169,7 +172,7 @@ def chat_streaming(chat_url, access_token, payload, content_handler, meta_handle
         if line:
             try:
                 # Remove 'data: ' prefix if present
-                stripped_line = line.decode('utf-8').lstrip("data: ").strip()
+                stripped_line = line.decode("utf-8").lstrip("data: ").strip()
                 if stripped_line:
                     data = json.loads(stripped_line)
                     # Check for error in the response
@@ -186,9 +189,3 @@ def chat_streaming(chat_url, access_token, payload, content_handler, meta_handle
             except json.JSONDecodeError as e:
                 print(f"JSON decode error: {e} - Content: {line}")
                 continue
-    
-    # If we found an error, raise an exception to propagate it back
-    if error_message:
-        raise Exception(f"{error_message}")
-
-

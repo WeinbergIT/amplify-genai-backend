@@ -1,5 +1,5 @@
-#Copyright (c) 2024 Vanderbilt University  
-#Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
+# Copyright (c) 2024 Vanderbilt University
+# Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
 
 from common.permissions import get_permission_checker
 import json
@@ -435,16 +435,10 @@ validators = {
     "/assistant/get_group_assistant_dashboards": {
         "get_group_assistant_dashboards": get_group_assistant_dashboards_schema
     },
-    "/assistant/save_user_rating": {
-        "save_user_rating": save_user_rating_schema
-    },
+    "/assistant/save_user_rating": {"save_user_rating": save_user_rating_schema},
     "/assistant/get_group_conversations_data": {
         "get_group_conversations_data": get_group_conversations_data_schema
     },
-    "/assistant/lookup": {"lookup": lookup_assistant_schema},
-    "/assistant/add_path": {"add_assistant_path": add_assistant_path_schema},
-    "/assistant/scrape_website": {"scrape_website": scrape_website_schema},
-    "/assistant/rescan_websites": {"rescan_websites": rescan_websites_schema},
 }
 
 api_validators = {
@@ -473,12 +467,6 @@ api_validators = {
     "/assistant/get_group_conversations_data": {
         "get_group_conversations_data": get_group_conversations_data_schema
     },
-    "/assistant/lookup": {"lookup": lookup_assistant_schema},
-    "/assistant/add_path": {"add_assistant_path": add_assistant_path_schema},
-    "/assistant/request_access": {"share_assistant": assistant_id_schema},
-    "/assistant/validate/assistant_id": {"lookup": assistant_id_schema},
-    "/assistant/scrape_website": {"scrape_website": scrape_website_schema},
-    "/assistant/rescan_websites": {"rescan_websites": rescan_websites_schema},
 }
 
 
@@ -538,7 +526,10 @@ def validated(op, validate_body=True):
                     else get_claims(event, context, token)
                 )
 
-                current_user = claims["username"]
+                if "custom:upn" in claims:
+                    current_user = claims["custom:upn"]
+                else:
+                    current_user = claims["username"]
                 print(f"User: {current_user}")
                 if current_user is None:
                     raise Unauthorized("User not found.")
@@ -605,25 +596,31 @@ def get_claims(event, context, token):
             issuer=oauth_issuer_base_url,
         )
 
-        idp_prefix: str = os.getenv('IDP_PREFIX') or ''
+        idp_prefix: str = os.getenv("IDP_PREFIX") or ""
         idp_prefix = idp_prefix.lower()
         print(f"IDP_PREFIX from env: {idp_prefix}")
-        print(f"Original username: {payload['username']}")
+        if "custom:upn" in payload:
+            print(f' Original username from custom:upn: {payload["custom:upn"]}')
+        else:
+            print(f"Original username: {payload['username']}")
 
         def get_email(text: str):
             print(f"Input text: {text}")
             print(f"Checking if text starts with: {idp_prefix + '_'}")
 
-            if len(idp_prefix) > 0 and text.startswith(idp_prefix + '_'):
-                result = text.split(idp_prefix + '_', 1)[1]
+            if len(idp_prefix) > 0 and text.startswith(idp_prefix + "_"):
+                result = text.split(idp_prefix + "_", 1)[1]
                 print(f"Text matched pattern, returning: {result}")
                 return result
-            
+
             print(f"Text did not match pattern, returning original: {text}")
             return text
 
-        user = get_email(payload['username'])
-        print(f"Final user value: {user}")
+        if "custom:upn" in payload:
+            user = get_email(payload["custom:upn"])
+            print(f"User from custom:upn: {user}")
+        else:
+            user = get_email(payload["username"])
 
         # grab deafault account from accounts table
         dynamodb = boto3.resource("dynamodb")

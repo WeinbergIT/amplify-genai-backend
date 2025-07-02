@@ -1,10 +1,9 @@
 //Copyright (c) 2024 Vanderbilt University  
 //Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
 
-import {chat} from "../azure/openai.js";
-import {chat as geminiChat} from "../gemini/gemini.js";
+import { chat } from "../azure/openai.js";
 import { chatBedrock } from "../bedrock/bedrock.js";
-import {getLLMConfig} from "../common/secrets.js";
+import { getLLMConfig } from "../common/secrets.js";
 
 export const getRequestId = (params) => {
     return params.requestId;
@@ -24,7 +23,7 @@ export const getAdvancedModel = (params) => {
 
 export const setModel = (params, model) => {
     const options = params.options || {};
-    return {...params, options: {...options, model}, model};
+    return { ...params, options: { ...options, model }, model };
 }
 
 export const getOptions = (params) => {
@@ -32,7 +31,7 @@ export const getOptions = (params) => {
 }
 
 export const setUser = (params, user) => {
-    return {...params, account:{user}};
+    return { ...params, account: { user } };
 }
 
 export const getUser = (params) => {
@@ -68,8 +67,4 @@ export const getChatFn = (model, body, writable, context) => {
 
 export const isOpenAIModel = (modelId) => {
     return ["gpt", "o1", "o3", "o4"].some(id => modelId.includes(id));
-}
-
-export const isGeminiModel = (modelId) => {
-    return modelId && modelId.includes("gemini");
 }

@@ -1,6 +1,12 @@
 def get_permission_checker(user, ptype, op, data):
-    print("Checking permissions for user: {} and type: {} and op: {}".format(user, ptype, op))
-    return permissions_by_state_type.get(ptype, {}).get(op, lambda for_user, with_data: False)
+    print(
+        "Checking permissions for user: {} and type: {} and op: {}".format(
+            user, ptype, op
+        )
+    )
+    return permissions_by_state_type.get(ptype, {}).get(
+        op, lambda for_user, with_data: False
+    )
 
 
 def can_optimize(user, data):
@@ -22,7 +28,5 @@ is a function that takes a user and data and returns if the
 user can do the operation.
 """
 permissions_by_state_type = {
-    "/optimizer/prompt": {
-        "optimize": can_optimize
-    },
+    "/optimizer/prompt": {"optimize": can_optimize},
 }
