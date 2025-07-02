@@ -1,6 +1,5 @@
-
-#Copyright (c) 2024 Vanderbilt University  
-#Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
+# Copyright (c) 2024 Vanderbilt University
+# Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
 
 from datetime import datetime, timedelta
 import hashlib
@@ -172,7 +171,6 @@ def check_user_can_update_assistant(assistant, user_id):
     return False
 
 
-
 @op(
     path="/assistant/delete",
     name="deleteAssistant",
@@ -189,7 +187,7 @@ def check_user_can_update_assistant(assistant, user_id):
     """,
     params={
         "assistantId": "String. Required. Unique identifier of the assistant to delete. Example: 'astp/3209457834985793094'."
-    }
+    },
 )
 @validated(op="delete")
 def delete_assistant(event, context, current_user, name, data):
@@ -251,7 +249,6 @@ def delete_assistant(event, context, current_user, name, data):
         return {"success": False, "message": "Failed to delete assistant."}
 
 
-
 @op(
     path="/assistant/list",
     name="listAssistants",
@@ -287,9 +284,8 @@ def delete_assistant(event, context, current_user, name, data):
         ]
     }
     """,
-    params={}
+    params={},
 )
-
 @validated(op="list")
 def list_assistants(event, context, current_user, name, data):
     access = data["allowed_access"]
@@ -316,7 +312,9 @@ def list_assistants(event, context, current_user, name, data):
     assistant_ids = [assistant["id"] for assistant in assistants]
 
     access_rights = {}
-    if not data[ "is_group_sys_user" ]:  # saves us the call, access is determined by group members access list
+    if not data[
+        "is_group_sys_user"
+    ]:  # saves us the call, access is determined by group members access list
         access_rights = simulate_can_access_objects(
             data["access_token"], assistant_ids, ["read", "write"]
         )
@@ -364,8 +362,7 @@ def list_user_assistants(user_id):
     # Create a list of dictionaries representing the assistants
     assistants = [item for item in response["Items"]]
 
-
-    # filter out old versions 
+    # filter out old versions
     return get_latest_assistants(assistants)
 
 
@@ -373,14 +370,17 @@ def get_latest_assistants(assistants):
     latest_assistants = {}
     for assistant in assistants:
         # Set version to 1 if it doesn't exist
-        assistant.setdefault('version', 1)
-        assistant_id = assistant.get('assistantId', None)
+        assistant.setdefault("version", 1)
+        assistant_id = assistant.get("assistantId", None)
         # will exclude system ast since they dont have assistantId
-        if (assistant_id and (assistant_id not in latest_assistants or latest_assistants[assistant_id]['version'] < assistant['version'])):
+        if assistant_id and (
+            assistant_id not in latest_assistants
+            or latest_assistants[assistant_id]["version"] < assistant["version"]
+        ):
             latest_assistants[assistant_id] = assistant
-    
+
     return list(latest_assistants.values())
-    
+
 
 def get_assistant(assistant_id):
     """
@@ -448,9 +448,8 @@ def get_assistant(assistant_id):
         "instructions": "String. Required. Detailed instructions on how the assistant should respond.",
         "disclaimer": "String. Optional. Disclaimer for the assistant's responses.",
         "dataSources": "Array of objects. Required. List of data sources the assistant can use. You can obtain ful data source objects by calling the /files/query endpoint",
-    }
+    },
 )
-
 @validated(op="create")
 def create_assistant(event, context, current_user, name, data):
     access = data["allowed_access"]
@@ -557,8 +556,8 @@ def create_assistant(event, context, current_user, name, data):
     params={
         "assistantId": "String. Required. Unique identifier of the assistant to share. Example: 'ast/8934572093982034020-9'. prefixed with ast",
         "recipientUsers": "Array of strings. Required. List of email addresses of the users to share the assistant with. Example: ['user1@example.com', 'user2@example.com'].",
-        "note": "String. Optional. A note to include with the shared assistant. Example: 'Sharing this assistant for project collaboration.'"
-    }
+        "note": "String. Optional. A note to include with the shared assistant. Example: 'Sharing this assistant for project collaboration.'",
+    },
 )
 @validated(op="share_assistant")
 def share_assistant(event, context, current_user, name, data):

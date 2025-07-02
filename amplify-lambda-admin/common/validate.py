@@ -51,288 +51,237 @@ update_admin_config_schema = {
                         # Configuration for 'admins'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "admins"
-                            },
+                            "type": {"type": "string", "const": "admins"},
                             "data": {
                                 "type": "array",
                                 "items": {
                                     "type": "string",
                                 },
-                                "minItems": 1
-                            }
+                                "minItems": 1,
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'applicationVariables'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "applicationVariables"
-                            },
+                            "type": {"type": "string", "const": "applicationVariables"},
                             "data": {
                                 "type": "object",
-                                "additionalProperties": {
-                                    "type": "string"
-                                }
-                            }
+                                "additionalProperties": {"type": "string"},
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'applicationSecrets'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "applicationSecrets"
-                            },
+                            "type": {"type": "string", "const": "applicationSecrets"},
                             "data": {
                                 "type": "object",
-                                "additionalProperties": {
-                                    "type": "string"
-                                }
-                            }
+                                "additionalProperties": {"type": "string"},
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'featureFlags'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "featureFlags"
-                            },
+                            "type": {"type": "string", "const": "featureFlags"},
                             "data": {
                                 "type": "object",
                                 "patternProperties": {
                                     "^.*$": {
                                         "type": "object",
                                         "properties": {
-                                            "enabled": {
-                                                "type": "boolean"
-                                            },
+                                            "enabled": {"type": "boolean"},
                                             "userExceptions": {
                                                 "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
+                                                "items": {"type": "string"},
                                             },
                                             "amplifyGroupExceptions": {
                                                 "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
-                                            }
+                                                "items": {"type": "string"},
+                                            },
                                         },
                                         "required": ["enabled", "userExceptions"],
-                                        "additionalProperties": False
+                                        "additionalProperties": False,
                                     }
                                 },
-                                "additionalProperties": False
-                            }
+                                "additionalProperties": False,
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'openaiEndpoints'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "openaiEndpoints"
-                            },
+                            "type": {"type": "string", "const": "openaiEndpoints"},
                             "data": {
-                            "type": "object",
-                            "properties": {
-                                "models": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "patternProperties": {
-                                    "^.*$": {
-                                        "type": "object",
-                                        "properties": {
-                                        "endpoints": {
-                                            "type": "array",
-                                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "models": {
+                                        "type": "array",
+                                        "items": {
                                             "type": "object",
-                                            "properties": {
-                                                "url": { "type": "string" },
-                                                "key": { "type": "string" }
+                                            "patternProperties": {
+                                                "^.*$": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "endpoints": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "url": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "key": {
+                                                                        "type": "string"
+                                                                    },
+                                                                },
+                                                                "required": [
+                                                                    "url",
+                                                                    "key",
+                                                                ],
+                                                                "additionalProperties": False,
+                                                            },
+                                                            "minItems": 1,
+                                                        }
+                                                    },
+                                                    "required": ["endpoints"],
+                                                    "additionalProperties": False,
+                                                }
                                             },
-                                            "required": ["url", "key"],
-                                            "additionalProperties": False
-                                            },
-                                            "minItems": 1
-                                        }
+                                            "additionalProperties": False,
                                         },
-                                        "required": ["endpoints"],
-                                        "additionalProperties": False
                                     }
-                                    },
-                                    "additionalProperties": False
-                                }
-                                }
+                                },
+                                "required": ["models"],
+                                "additionalProperties": False,
                             },
-                            "required": ["models"],
-                            "additionalProperties": False
-                            }
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'supportedModels'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "supportedModels"
-                            },
+                            "type": {"type": "string", "const": "supportedModels"},
                             "data": {
                                 "type": "object",
                                 "patternProperties": {
                                     "^.*$": {
                                         "type": "object",
                                         "properties": {
-                                            "id": {
-                                                "type": "string"
-                                            },
-                                            "name": {
-                                                "type": "string"
-                                            },
-                                            "provider": {
-                                                "type": "string"
-                                            },
-                                            "description": {
-                                                "type": "string"
-                                            },
-                                             "isAvailable": {
-                                                "type": "boolean"
-                                            },
-                                            "isBuiltIn": {
-                                                "type": "boolean"
-                                            },
-                                             "isDefault": {
-                                                "type": "boolean"
-                                            },
-                                            "systemPrompt": {
-                                                "type": "string"
-                                            },
+                                            "id": {"type": "string"},
+                                            "name": {"type": "string"},
+                                            "provider": {"type": "string"},
+                                            "description": {"type": "string"},
+                                            "isAvailable": {"type": "boolean"},
+                                            "isBuiltIn": {"type": "boolean"},
+                                            "isDefault": {"type": "boolean"},
+                                            "systemPrompt": {"type": "string"},
                                             "supportsSystemPrompts": {
                                                 "type": "boolean"
                                             },
-                                             "supportsImages": {
+                                            "supportsImages": {"type": "boolean"},
+                                            "defaultCheapestModel": {"type": "boolean"},
+                                            "defaultAdvancedModel": {"type": "boolean"},
+                                            "defaultEmbeddingsModel": {
                                                 "type": "boolean"
                                             },
-                                             "defaultCheapestModel": {
-                                                "type": "boolean"
-                                            },
-                                             "defaultAdvancedModel": {
-                                                "type": "boolean"
-                                            },
-                                             "defaultEmbeddingsModel": {
-                                                "type": "boolean"
-                                            },
-                                             "defaultQAModel": {
-                                                "type": "boolean"
-                                            },
-                                             "inputContextWindow": {
-                                                "type": "number"
-                                            },
-                                             "outputTokenLimit": {
-                                                "type": "number"
-                                            },
-                                            "inputTokenCost": {
-                                                "type": "number"
-                                            },
-                                             "outputTokenCost": {
-                                                "type": "number"
-                                            },
-                                             "cachedTokenCost": {
-                                                "type": "number"
-                                            },
+                                            "defaultQAModel": {"type": "boolean"},
+                                            "inputContextWindow": {"type": "number"},
+                                            "outputTokenLimit": {"type": "number"},
+                                            "inputTokenCost": {"type": "number"},
+                                            "outputTokenCost": {"type": "number"},
+                                            "cachedTokenCost": {"type": "number"},
                                             "exclusiveGroupAvailability": {
                                                 "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
-                                            }
+                                                "items": {"type": "string"},
+                                            },
                                         },
-                                        "required": ["id","name", "provider", "description", "isAvailable", 
-                                                     "supportsImages","supportsSystemPrompts", "systemPrompt",
-                                                     "defaultCheapestModel", "defaultAdvancedModel", "defaultEmbeddingsModel", "isBuiltIn", "isDefault",
-                                                     "inputContextWindow", "outputTokenLimit", "inputTokenCost", "outputTokenCost", "cachedTokenCost", "exclusiveGroupAvailability"],
-                                        "additionalProperties": False
+                                        "required": [
+                                            "id",
+                                            "name",
+                                            "provider",
+                                            "description",
+                                            "isAvailable",
+                                            "supportsImages",
+                                            "supportsSystemPrompts",
+                                            "systemPrompt",
+                                            "defaultCheapestModel",
+                                            "defaultAdvancedModel",
+                                            "defaultEmbeddingsModel",
+                                            "isBuiltIn",
+                                            "isDefault",
+                                            "inputContextWindow",
+                                            "outputTokenLimit",
+                                            "inputTokenCost",
+                                            "outputTokenCost",
+                                            "cachedTokenCost",
+                                            "exclusiveGroupAvailability",
+                                        ],
+                                        "additionalProperties": False,
                                     }
                                 },
-                                "additionalProperties": False
-                            }
+                                "additionalProperties": False,
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'amplifyGroups'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "amplifyGroups"
-                            },
+                            "type": {"type": "string", "const": "amplifyGroups"},
                             "data": {
                                 "type": "object",
                                 "patternProperties": {
                                     "^.*$": {
                                         "type": "object",
                                         "properties": {
-                                            "groupName": {
-                                                "type": "string"
-                                            },
-                                            "createdBy": {
-                                                "type": "string"
-                                            },
+                                            "groupName": {"type": "string"},
+                                            "createdBy": {"type": "string"},
                                             "members": {
                                                 "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
+                                                "items": {"type": "string"},
                                             },
                                             "includeFromOtherGroups": {
                                                 "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
-                                            }
+                                                "items": {"type": "string"},
+                                            },
                                         },
-                                        "required": ["groupName", "createdBy", "members", ],
-                                        "additionalProperties": False
-
+                                        "required": [
+                                            "groupName",
+                                            "createdBy",
+                                            "members",
+                                        ],
+                                        "additionalProperties": False,
                                     }
                                 },
-                                "additionalProperties": False
-                            }
+                                "additionalProperties": False,
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'assistantAdminGroups'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "assistantAdminGroups"
-                            },
+                            "type": {"type": "string", "const": "assistantAdminGroups"},
                             "data": {
                                 "type": "array",
                                 "items": {
@@ -346,22 +295,24 @@ update_admin_config_schema = {
                                         "isPublic": {"type": "boolean"},
                                         "supportConvAnalysis": {"type": "boolean"},
                                     },
-                                    "required": ["group_id", "amplifyGroups", "isPublic", "supportConvAnalysis"],
-                                "additionalProperties": False
+                                    "required": [
+                                        "group_id",
+                                        "amplifyGroups",
+                                        "isPublic",
+                                        "supportConvAnalysis",
+                                    ],
+                                    "additionalProperties": False,
                                 },
-                            }
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'powerPointTemplates'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "powerPointTemplates"
-                            },
+                            "type": {"type": "string", "const": "powerPointTemplates"},
                             "data": {
                                 "type": "array",
                                 "items": {
@@ -371,25 +322,26 @@ update_admin_config_schema = {
                                         "isAvailable": {"type": "boolean"},
                                         "amplifyGroups": {
                                             "type": "array",
-                                            "items": {"type": "string"}
-                                        }
+                                            "items": {"type": "string"},
+                                        },
                                     },
-                                    "required": ["name", "isAvailable", "amplifyGroups"],
-                                    "additionalProperties": False
-                                }
-                            }
+                                    "required": [
+                                        "name",
+                                        "isAvailable",
+                                        "amplifyGroups",
+                                    ],
+                                    "additionalProperties": False,
+                                },
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'promtCostAlert'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "promtCostAlert"
-                            },
+                            "type": {"type": "string", "const": "promtCostAlert"},
                             "data": {
                                 "type": "object",
                                 "properties": {
@@ -398,132 +350,83 @@ update_admin_config_schema = {
                                     "cost": {"type": "number"},
                                 },
                                 "required": ["isActive", "alertMessage", "cost"],
-                                "additionalProperties": False
-                            }
+                                "additionalProperties": False,
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                     {
                         # Configuration for 'rateLimit'
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "rateLimit"
-                            },
+                            "type": {"type": "string", "const": "rateLimit"},
                             "data": {
                                 "type": "object",
                                 "properties": {
                                     "period": {"type": "string"},
-                                    "rate": { "type": ["number", "null"] }, 
+                                    "rate": {"type": ["number", "null"]},
                                 },
                                 "required": ["period", "rate"],
-                                "additionalProperties": False
-                            }
+                                "additionalProperties": False,
+                            },
                         },
                         "required": ["type", "data"],
-                        "additionalProperties": False
+                        "additionalProperties": False,
                     },
                 ]
-            }
+            },
         }
     },
     "required": ["configurations"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 auth_as_admin_schema = {
     "type": "object",
-    "properties": {
-        "purpose": {
-            "type": "string"
-        }
-    },
-    "required": ["purpose"]
+    "properties": {"purpose": {"type": "string"}},
+    "required": ["purpose"],
 }
 
 upload_pptx_schema = {
     "type": "object",
     "properties": {
-        "fileName": {
-            "type": "string"
-        },
-        "isAvailable" : {
-            "type": "boolean"
-        },
-        "amplifyGroups": {
-            "type": "array",
-            "items": {"type": "string"}
-        },
-        "contentType" : {
-            "type": "string"
-        },
-        "md5" : {
-            "type": "string"
-        }
+        "fileName": {"type": "string"},
+        "isAvailable": {"type": "boolean"},
+        "amplifyGroups": {"type": "array", "items": {"type": "string"}},
+        "contentType": {"type": "string"},
+        "md5": {"type": "string"},
     },
-    "required": ["fileName", "isAvailable",  "amplifyGroups", "contentType", "md5"]
+    "required": ["fileName", "isAvailable", "amplifyGroups", "contentType", "md5"],
 }
 
 verify_in_amp_group_schema = {
     "type": "object",
-    "properties": {
-        "groups": {
-            "type": "array",
-            "items": {"type": "string"}
-        }
-    },
-    "required": ["groups"]
+    "properties": {"groups": {"type": "array", "items": {"type": "string"}}},
+    "required": ["groups"],
 }
 
 add_user_access_ast_admin = {
     "type": "object",
-    "properties": {
-        "users": {
-            "type": "array",
-            "items": {"type": "string"}
-        }
-    },
-    "required": ["users"]
+    "properties": {"users": {"type": "array", "items": {"type": "string"}}},
+    "required": ["users"],
 }
 
 
 validators = {
-    "/amplifymin/configs/get": {
-        "read": {} #get
-    },
-    "/amplifymin/configs/update": {
-        "update": update_admin_config_schema
-    },
-    "/amplifymin/feature_flags/get": {
-        "read": {} 
-    },
-    "/amplifymin/auth": {
-        "read": auth_as_admin_schema
-    },
-    "/amplifymin/pptx_templates/get": {
-        "read": {} 
-    },
-    "/amplifymin/pptx_templates/delete": {
-        "delete": {} 
-    },
-    "/amplifymin/pptx_templates/upload": {
-        "upload": upload_pptx_schema
-    },
-    "/amplifymin/verify_amp_member" : {
-        "read": verify_in_amp_group_schema
-    },
-    
+    "/amplifymin/configs/get": {"read": {}},  # get
+    "/amplifymin/configs/update": {"update": update_admin_config_schema},
+    "/amplifymin/feature_flags/get": {"read": {}},
+    "/amplifymin/auth": {"read": auth_as_admin_schema},
+    "/amplifymin/pptx_templates/get": {"read": {}},
+    "/amplifymin/pptx_templates/delete": {"delete": {}},
+    "/amplifymin/pptx_templates/upload": {"upload": upload_pptx_schema},
+    "/amplifymin/verify_amp_member": {"read": verify_in_amp_group_schema},
 }
 
 api_validators = {
-    "/amplifymin/auth": {
-        "read": auth_as_admin_schema
-    },
-    "/amplifymin/verify_amp_member" : {
-        "read": verify_in_amp_group_schema
-    },
+    "/amplifymin/auth": {"read": auth_as_admin_schema},
+    "/amplifymin/verify_amp_member": {"read": verify_in_amp_group_schema},
 }
 
 
@@ -549,11 +452,11 @@ def parse_and_validate(current_user, event, op, api_accessed, validate_body=True
     data = {}
     if validate_body:
         try:
-            data = json.loads(event['body']) if event.get('body') else {}
+            data = json.loads(event["body"]) if event.get("body") else {}
         except json.decoder.JSONDecodeError as e:
             raise BadRequest("Unable to parse JSON body.")
 
-    name = event['path']
+    name = event["path"]
 
     if not name:
         raise BadRequest("Unable to perform the operation, invalid request.")
@@ -577,34 +480,38 @@ def validated(op, validate_body=True):
         def wrapper(event, context):
             try:
                 token = parseToken(event)
-                api_accessed = token[:4] == 'amp-'
-                
-                claims = api_claims(event, context, token) if (api_accessed) else get_claims(event, context, token)
+                api_accessed = token[:4] == "amp-"
 
-                current_user = claims['username']
+                claims = (
+                    api_claims(event, context, token)
+                    if (api_accessed)
+                    else get_claims(event, context, token)
+                )
+
+                current_user = claims["username"]
                 print(f"User: {current_user}")
                 if current_user is None:
                     raise Unauthorized("User not found.")
 
-                [name, data] = parse_and_validate(current_user, event, op, api_accessed, validate_body)
-                
-                data['access_token'] = token
-                data['account'] = claims['account']
-                data['api_accessed'] = api_accessed
-                data['allowed_access'] = claims['allowed_access']
+                [name, data] = parse_and_validate(
+                    current_user, event, op, api_accessed, validate_body
+                )
+
+                data["access_token"] = token
+                data["account"] = claims["account"]
+                data["api_accessed"] = api_accessed
+                data["allowed_access"] = claims["allowed_access"]
 
                 result = f(event, context, current_user, name, data)
 
                 return {
                     "statusCode": 200,
-                    "body": json.dumps(result, cls=CombinedEncoder)
+                    "body": json.dumps(result, cls=CombinedEncoder),
                 }
             except HTTPException as e:
                 return {
                     "statusCode": e.status_code,
-                    "body": json.dumps({
-                        "error": f"Error: {e.status_code} - {e}"
-                    })
+                    "body": json.dumps({"error": f"Error: {e.status_code} - {e}"}),
                 }
 
         return wrapper
@@ -615,10 +522,10 @@ def validated(op, validate_body=True):
 def get_claims(event, context, token):
     # https://cognito-idp.<Region>.amazonaws.com/<userPoolId>/.well-known/jwks.json
 
-    oauth_issuer_base_url = os.getenv('OAUTH_ISSUER_BASE_URL')
-    oauth_audience = os.getenv('OAUTH_AUDIENCE')
+    oauth_issuer_base_url = os.getenv("OAUTH_ISSUER_BASE_URL")
+    oauth_audience = os.getenv("OAUTH_AUDIENCE")
 
-    jwks_url = f'{oauth_issuer_base_url}/.well-known/jwks.json'
+    jwks_url = f"{oauth_issuer_base_url}/.well-known/jwks.json"
     jwks = requests.get(jwks_url).json()
 
     header = jwt.get_unverified_header(token)
@@ -630,7 +537,7 @@ def get_claims(event, context, token):
                 "kid": key["kid"],
                 "use": key["use"],
                 "n": key["n"],
-                "e": key["e"]
+                "e": key["e"],
             }
 
     if rsa_key:
@@ -639,10 +546,10 @@ def get_claims(event, context, token):
             rsa_key,
             algorithms=ALGORITHMS,
             audience=oauth_audience,
-            issuer=oauth_issuer_base_url
+            issuer=oauth_issuer_base_url,
         )
-        
-        idp_prefix: str = os.getenv('IDP_PREFIX') or ''
+
+        idp_prefix: str = os.getenv("IDP_PREFIX") or ""
         idp_prefix = idp_prefix.lower()
         print(f"IDP_PREFIX from env: {idp_prefix}")
         print(f"Original username: {payload['username']}")
@@ -651,47 +558,47 @@ def get_claims(event, context, token):
             print(f"Input text: {text}")
             print(f"Checking if text starts with: {idp_prefix + '_'}")
 
-            if len(idp_prefix) > 0 and text.startswith(idp_prefix + '_'):
-                result = text.split(idp_prefix + '_', 1)[1]
+            if len(idp_prefix) > 0 and text.startswith(idp_prefix + "_"):
+                result = text.split(idp_prefix + "_", 1)[1]
                 print(f"Text matched pattern, returning: {result}")
                 return result
-            
+
             print(f"Text did not match pattern, returning original: {text}")
             return text
 
-        user = get_email(payload['username'])
+        user = get_email(payload["username"])
         print(f"Final user value: {user}")
-        # grab deafault account from accounts table 
-        dynamodb = boto3.resource('dynamodb')
-        accounts_table_name = os.getenv('ACCOUNTS_DYNAMO_TABLE')
+        # grab deafault account from accounts table
+        dynamodb = boto3.resource("dynamodb")
+        accounts_table_name = os.getenv("ACCOUNTS_DYNAMO_TABLE")
         if not accounts_table_name:
             raise ValueError("ACCOUNTS_DYNAMO_TABLE is not provided.")
 
         table = dynamodb.Table(accounts_table_name)
         account = None
         try:
-            response = table.get_item(Key={'user': user})
-            if 'Item' not in response:
+            response = table.get_item(Key={"user": user})
+            if "Item" not in response:
                 raise ValueError(f"No item found for user: {user}")
 
-            accounts = response['Item'].get('accounts', [])
+            accounts = response["Item"].get("accounts", [])
             for acct in accounts:
-                if acct['isDefault']:
-                    account = acct['id']
-                    
+                if acct["isDefault"]:
+                    account = acct["id"]
+
         except Exception as e:
             print(f"Error retrieving default account: {e}")
 
-        if (not account):
+        if not account:
             print("setting account to general_account")
-            account = 'general_account'   
+            account = "general_account"
 
-        payload['account'] = account
-        payload['username'] = user
+        payload["account"] = account
+        payload["username"] = user
         # Here we can established the allowed access according to the feature flags in the future
         # For now it is set to full_access, which says they can do the operation upon entry of the validated function
         # current access types include: asssistants, share, dual_embedding, chat, file_upload
-        payload['allowed_access'] =  ['full_access']
+        payload["allowed_access"] = ["full_access"]
         return payload
     else:
         print("No RSA Key Found, likely an invalid OAUTH_ISSUER_BASE_URL")
@@ -701,20 +608,20 @@ def get_claims(event, context, token):
 
 def parseToken(event):
     token = None
-    normalized_headers = {k.lower(): v for k, v in event['headers'].items()}
-    authorization_key = 'authorization'
+    normalized_headers = {k.lower(): v for k, v in event["headers"].items()}
+    authorization_key = "authorization"
 
     if authorization_key in normalized_headers:
         parts = normalized_headers[authorization_key].split()
 
         if len(parts) == 2:
             scheme, token = parts
-            if scheme.lower() != 'bearer':
+            if scheme.lower() != "bearer":
                 token = None
 
     if not token:
         raise Unauthorized("No Access Token Found")
-    
+
     return token
 
 
@@ -722,8 +629,8 @@ def api_claims(event, context, token):
     print("API route was taken")
 
     # Set up DynamoDB connection
-    dynamodb = boto3.resource('dynamodb')
-    api_keys_table_name = os.getenv('API_KEYS_DYNAMODB_TABLE')
+    dynamodb = boto3.resource("dynamodb")
+    api_keys_table_name = os.getenv("API_KEYS_DYNAMODB_TABLE")
     if not api_keys_table_name:
         raise ValueError("API_KEYS_DYNAMODB_TABLE is not provided.")
 
@@ -732,57 +639,63 @@ def api_claims(event, context, token):
     try:
         # Retrieve item from DynamoDB
         response = table.query(
-            IndexName='ApiKeyIndex',
-            KeyConditionExpression='apiKey = :apiKeyVal',
-            ExpressionAttributeValues={
-                ':apiKeyVal': token
-            }
+            IndexName="ApiKeyIndex",
+            KeyConditionExpression="apiKey = :apiKeyVal",
+            ExpressionAttributeValues={":apiKeyVal": token},
         )
-        items = response['Items']
-
+        items = response["Items"]
 
         if not items:
             print("API key does not exist.")
             raise LookupError("API key not found.")
-        
+
         item = items[0]
 
         # Check if the API key is active
-        if (not item.get('active', False)):
+        if not item.get("active", False):
             print("API key is inactive.")
             raise PermissionError("API key is inactive.")
 
         # Optionally check the expiration date if applicable
-        if (item.get('expirationDate') and datetime.strptime(item['expirationDate'], "%Y-%m-%d") <= datetime.now()):
+        if (
+            item.get("expirationDate")
+            and datetime.strptime(item["expirationDate"], "%Y-%m-%d") <= datetime.now()
+        ):
             print("API key has expired.")
             raise PermissionError("API key has expired.")
 
         # Check for access rights
-        access = item.get('accessTypes', [])
-        if ('admin' not in access):
+        access = item.get("accessTypes", [])
+        if "admin" not in access:
             # and 'full_access' not in access
             print("API doesn't have access to api functionality")
             raise PermissionError("API key does not have access to api functionality")
-        
+
         # Determine API user
         current_user = determine_api_user(item)
-        
-        rate_limit = item['rateLimit']
+
+        rate_limit = item["rateLimit"]
         if is_rate_limited(current_user, rate_limit):
-                    rate = float(rate_limit['rate'])
-                    period = rate_limit['period']
-                    print(f"You have exceeded your rate limit of ${rate:.2f}/{period}")
-                    raise Unauthorized(f"You have exceeded your rate limit of ${rate:.2f}/{period}")
+            rate = float(rate_limit["rate"])
+            period = rate_limit["period"]
+            print(f"You have exceeded your rate limit of ${rate:.2f}/{period}")
+            raise Unauthorized(
+                f"You have exceeded your rate limit of ${rate:.2f}/{period}"
+            )
 
         # Update last accessed
         table.update_item(
-            Key={'api_owner_id': item['api_owner_id']},
+            Key={"api_owner_id": item["api_owner_id"]},
             UpdateExpression="SET lastAccessed = :now",
-            ExpressionAttributeValues={':now': datetime.now().isoformat()}
+            ExpressionAttributeValues={":now": datetime.now().isoformat()},
         )
         print("Last Access updated")
 
-        return {'username': current_user, 'account': item['account'], 'allowed_access': access}
+        return {
+            "username": current_user,
+            "account": item["account"],
+            "allowed_access": access,
+        }
 
     except Exception as e:
         print("Error during DynamoDB operation:", str(e))
@@ -791,53 +704,54 @@ def api_claims(event, context, token):
 
 def determine_api_user(data):
     key_type_pattern = r"/(.*?)Key/"
-    match = re.search(key_type_pattern, data['api_owner_id'])
+    match = re.search(key_type_pattern, data["api_owner_id"])
     key_type = match.group(1) if match else None
 
-    if key_type == 'owner':
-        return data.get('owner')
-    elif key_type == 'delegate':
-        return data.get('delegate')
-    elif key_type == 'system':
-        return data.get('systemId')
+    if key_type == "owner":
+        return data.get("owner")
+    elif key_type == "delegate":
+        return data.get("delegate")
+    elif key_type == "system":
+        return data.get("systemId")
     else:
         print("Unknown or missing key type in api_owner_id:", key_type)
         raise Exception("Invalid or unrecognized key type.")
-    
 
 
-
-
-def is_rate_limited(current_user, rate_limit): 
+def is_rate_limited(current_user, rate_limit):
     print(rate_limit)
-    if rate_limit['period'] == 'Unlimited': return False
-    
-    cost_calc_table = os.getenv('COST_CALCULATIONS_DYNAMO_TABLE')
-    if not cost_calc_table:
-        raise ValueError("COST_CALCULATIONS_DYNAMO_TABLE is not provided in the environment variables.")
+    if rate_limit["period"] == "Unlimited":
+        return False
 
-    dynamodb = boto3.resource('dynamodb')
+    cost_calc_table = os.getenv("COST_CALCULATIONS_DYNAMO_TABLE")
+    if not cost_calc_table:
+        raise ValueError(
+            "COST_CALCULATIONS_DYNAMO_TABLE is not provided in the environment variables."
+        )
+
+    dynamodb = boto3.resource("dynamodb")
     table = dynamodb.Table(cost_calc_table)
 
     try:
         print("Query cost calculation table")
-        response = table.query(
-            KeyConditionExpression=Key('id').eq(current_user) 
-        )
-        items = response['Items']
+        response = table.query(KeyConditionExpression=Key("id").eq(current_user))
+        items = response["Items"]
         if not items:
             print("Table entry does not exist. Cannot verify if rate limited.")
             return False
 
-        rate_data = items[0] 
+        rate_data = items[0]
 
-        period = rate_limit['period']
+        period = rate_limit["period"]
         col_name = f"{period.lower()}Cost"
 
         spent = rate_data[col_name]
-        if (period == 'Hourly'): spent = spent[datetime.now().hour] # Get the current hour as a number from 0 to 23
+        if period == "Hourly":
+            spent = spent[
+                datetime.now().hour
+            ]  # Get the current hour as a number from 0 to 23
         print(f"Amount spent {spent}")
-        return spent >= rate_limit['rate']
+        return spent >= rate_limit["rate"]
 
     except Exception as error:
         print(f"Error during rate limit DynamoDB operation: {error}")

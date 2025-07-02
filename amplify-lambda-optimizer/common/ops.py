@@ -1,4 +1,3 @@
-
 def op(tags=None, path="", name="", description="", params=None, method="POST"):
     # This is the actual decorator
     def decorator(func):
@@ -13,6 +12,7 @@ def op(tags=None, path="", name="", description="", params=None, method="POST"):
             # Call the actual function
             result = func(*args, **kwargs)
             return result
-        return wrapper
-    return decorator
 
+        return wrapper
+
+    return decorator

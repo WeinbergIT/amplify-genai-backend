@@ -1,6 +1,12 @@
 def get_permission_checker(user, ptype, op, data):
-    print("Checking permissions for user: {} and type: {} and op: {}".format(user, ptype, op))
-    return permissions_by_state_type.get(ptype, {}).get(op, lambda for_user, with_data: False)
+    print(
+        "Checking permissions for user: {} and type: {} and op: {}".format(
+            user, ptype, op
+        )
+    )
+    return permissions_by_state_type.get(ptype, {}).get(
+        op, lambda for_user, with_data: False
+    )
 
 
 def can_read(user, data):
@@ -10,8 +16,10 @@ def can_read(user, data):
 def can_update(user, data):
     return True
 
+
 def can_delete(user, data):
     return True
+
 
 def can_upload(user, data):
     return True
@@ -26,29 +34,12 @@ is a function that takes a user and data and returns if the
 user can do the operation.
 """
 permissions_by_state_type = {
-    "/amplifymin/configs/get": {
-        "read": can_read
-    },
-    "/amplifymin/configs/update": {
-        "update": can_update
-    },
-    "/amplifymin/feature_flags/get": {
-        "read": can_read
-    },
-    "/amplifymin/auth": {
-        "read": can_read
-    },
-     "/amplifymin/pptx_templates/get": {
-        "read": can_read
-    },
-     "/amplifymin/pptx_templates/delete": {
-        "delete": can_delete
-    },
-    "/amplifymin/pptx_templates/upload": {
-        "upload": can_upload
-    },
-     "/amplifymin/verify_amp_member" : {
-        "read": can_read
-    },
-
+    "/amplifymin/configs/get": {"read": can_read},
+    "/amplifymin/configs/update": {"update": can_update},
+    "/amplifymin/feature_flags/get": {"read": can_read},
+    "/amplifymin/auth": {"read": can_read},
+    "/amplifymin/pptx_templates/get": {"read": can_read},
+    "/amplifymin/pptx_templates/delete": {"delete": can_delete},
+    "/amplifymin/pptx_templates/upload": {"upload": can_upload},
+    "/amplifymin/verify_amp_member": {"read": can_read},
 }

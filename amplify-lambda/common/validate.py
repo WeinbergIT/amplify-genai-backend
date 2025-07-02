@@ -40,226 +40,124 @@ class NotFound(HTTPException):
     def __init__(self, message="Not Found"):
         super().__init__(404, message)
 
+
 chat_input_schema = {
     "type": "object",
     "properties": {
-        "temperature": {
-        "type": "number"
-        },
-        "model": { 
-        "type": "string"
-        },
-        "max_tokens": {
-        "type": "integer"
-        },
-        "dataSources": {
-        "type": "array",
-        "items": {
-            "type": "object"
-        }
-        },
+        "temperature": {"type": "number"},
+        "model": {"type": "string"},
+        "max_tokens": {"type": "integer"},
+        "dataSources": {"type": "array", "items": {"type": "object"}},
         "messages": {
-        "type": "array",
-        "items": {
-            "type": "object",
-            "required": [
-            "role",
-            "content"
-            ],
-            "properties": {
-            "role": {
-                "type": "string",
-                "enum": [
-                "system",
-                "assistant",
-                "user"
-                ]
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["role", "content"],
+                "properties": {
+                    "role": {"type": "string", "enum": ["system", "assistant", "user"]},
+                    "content": {"type": "string"},
+                    "type": {"type": "string", "enum": ["prompt"]},
+                },
             },
-            "content": {
-                "type": "string"
-            },
-            "type": {
-                "type": "string",
-                "enum": [
-                "prompt"
-                ]
-            }
-            }
-        }
         },
         "options": {
-        "type": "object",
-        "properties": {
-            "dataSourceOptions": {
-            "type": "object"
-            },
-            "ragOnly": {
-            "type": "boolean"
-            },
-            "skipRag": {
-            "type": "boolean"
-            },
-            "assistantId": {
-            "type": "string"
-            },
-            "model": {
             "type": "object",
-                "required": ["id"],
-                "properties": {
-                    "id": {
-                    "type": "string"
-                    }
-                }
+            "properties": {
+                "dataSourceOptions": {"type": "object"},
+                "ragOnly": {"type": "boolean"},
+                "skipRag": {"type": "boolean"},
+                "assistantId": {"type": "string"},
+                "model": {
+                    "type": "object",
+                    "required": ["id"],
+                    "properties": {"id": {"type": "string"}},
+                },
+                "prompt": {"type": "string"},
             },
-            "prompt": {
-            "type": "string"
-            }
+            "required": ["model"],
         },
-         "required": [ "model" ],
-        }
     },
-    "required": [ "temperature", "max_tokens", "messages", "options" ],
+    "required": ["temperature", "max_tokens", "messages", "options"],
 }
-
-
 
 
 export_schema = {
     "type": "object",
     "properties": {
-        "version": {
-            "type": "number"
-        },
+        "version": {"type": "number"},
         "history": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "messages": {
-                        "type": "array",
-                        "items": {
-                            "type": "object"
-                        }
-                    },
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "messages": {"type": "array", "items": {"type": "object"}},
                     "compressedMessages": {
                         "type": ["array", "null"],
-                        "items": {
-                            "type": "number"
-                        }
+                        "items": {"type": "number"},
                     },
-                    "model": {
-                        "type": "object"
-                    },
-                    "prompt": {
-                        "type": ["string", "null"]
-                    },
-                    "temperature": {
-                        "type": ["number", "null"]
-                    },
-                    "folderId": {
-                        "type": ["string", "null"]
-                    },
-                    "promptTemplate": {
-                        "type": ["object", "null"]
-                    },
-                    "tags": {
-                        "type": ["array", "null"],
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "maxTokens": {
-                        "type": ["number", "null"]
-                    },
-                    "workflowDefinition": {
-                        "type": ["object", "null"]
-                    },
-                    "data": {
-                        "type": ["object", "null"],
-                        "additionalProperties": True
-                    },
-                    "codeInterpreterAssistantId": {
-                        "type": ["string", "null"]
-                    },
-                    "isLocal": {
-                        "type": ["boolean", "null"]
-                    }
+                    "model": {"type": "object"},
+                    "prompt": {"type": ["string", "null"]},
+                    "temperature": {"type": ["number", "null"]},
+                    "folderId": {"type": ["string", "null"]},
+                    "promptTemplate": {"type": ["object", "null"]},
+                    "tags": {"type": ["array", "null"], "items": {"type": "string"}},
+                    "maxTokens": {"type": ["number", "null"]},
+                    "workflowDefinition": {"type": ["object", "null"]},
+                    "data": {"type": ["object", "null"], "additionalProperties": True},
+                    "codeInterpreterAssistantId": {"type": ["string", "null"]},
+                    "isLocal": {"type": ["boolean", "null"]},
                 },
-                "required": ["id", "name", "messages", "model", "folderId"]
-            }
+                "required": ["id", "name", "messages", "model", "folderId"],
+            },
         },
         "folders": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "date": {
-                        "type": ["string", "null"]
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string", 
-                        "enum": ["chat", "workflow", "prompt"] 
-                    }
+                    "id": {"type": "string"},
+                    "date": {"type": ["string", "null"]},
+                    "name": {"type": "string"},
+                    "type": {"type": "string", "enum": ["chat", "workflow", "prompt"]},
                 },
-                "required": ["id", "name", "type"]
-            }
+                "required": ["id", "name", "type"],
+            },
         },
         "prompts": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "content": {
-                        "type": "string"
-                    },
-                    "model": {
-                        "type": ["object", "null"]
-                    },
-                    "folderId": {
-                        "type": ["string", "null"]
-                    },
-                    "type": {
-                        "type": ["string", "null"]
-                    },
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "description": {"type": "string"},
+                    "content": {"type": "string"},
+                    "model": {"type": ["object", "null"]},
+                    "folderId": {"type": ["string", "null"]},
+                    "type": {"type": ["string", "null"]},
                     "data": {
                         "type": "object",
                         "properties": {
-                            "rootPromptId": {
-                                "type": ["string", "null"]
-                            },
-                            "code": {
-                                "type": ["string", "null"]
-                            }
+                            "rootPromptId": {"type": ["string", "null"]},
+                            "code": {"type": ["string", "null"]},
                         },
-                        "additionalProperties": True
-                    }
+                        "additionalProperties": True,
+                    },
                 },
-                "required": ["id", "name", "description", "content", "folderId", "type"]
+                "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "content",
+                    "folderId",
+                    "type",
+                ],
             },
-            "required": ["version", "history", "folders", "prompts"]
-        }    
-    }
+            "required": ["version", "history", "folders", "prompts"],
+        },
+    },
 }
 
 share_schema = {
@@ -267,19 +165,15 @@ share_schema = {
     "properties": {
         "note": {"type": "string"},
         "sharedWith": {"type": "array", "items": {"type": "string"}},
-        "sharedData": export_schema
+        "sharedData": export_schema,
     },
-    "required": ["sharedWith", "sharedData", "note"]
+    "required": ["sharedWith", "sharedData", "note"],
 }
 
 share_load_schema = {
     "type": "object",
-    "properties": {
-        "key": {
-            "type": "string"
-        }
-    },
-    "required": ["key"]
+    "properties": {"key": {"type": "string"}},
+    "required": ["key"],
 }
 
 
@@ -293,38 +187,26 @@ file_upload_schema = {
                 "properties": {
                     "name": {
                         "type": "string",
-                        "enum": ["saveAsData", "createChunks", "ingestRag", "makeDownloadable", "extractText"]
+                        "enum": [
+                            "saveAsData",
+                            "createChunks",
+                            "ingestRag",
+                            "makeDownloadable",
+                            "extractText",
+                        ],
                     },
-                    "params": {
-                        "type": "object",
-                        "additionalProperties": True
-                    }
+                    "params": {"type": "object", "additionalProperties": True},
                 },
                 "required": ["name"],
-                "additionalProperties": False
-            }
+                "additionalProperties": False,
+            },
         },
-        "type": {
-            "type": "string"
-        },
-        "name": {
-            "type": "string"
-        },
-        "knowledgeBase": {
-            "type": "string"
-        },
-        "tags": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        },
-        "data": {
-            "type": "object"
-        },
-        "groupId": {
-            "type": ["string", "null"]
-        },
+        "type": {"type": "string"},
+        "name": {"type": "string"},
+        "knowledgeBase": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "data": {"type": "object"},
+        "groupId": {"type": ["string", "null"]},
     },
     "required": ["type", "name", "knowledgeBase", "tags", "data"],
 }
@@ -332,42 +214,26 @@ file_upload_schema = {
 file_set_tags_schema = {
     "type": "object",
     "properties": {
-        "id": {
-            "type": "string"
-        },
-        "tags": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "default": []
-        }
+        "id": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}, "default": []},
     },
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 create_tags_schema = {
     "type": "object",
     "properties": {
-        "tags": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "default": []
-        }
+        "tags": {"type": "array", "items": {"type": "string"}, "default": []}
     },
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 user_delete_tag_schema = {
     "type": "object",
     "properties": {
-        "tag": {
-            "type": "string"
-        },
+        "tag": {"type": "string"},
     },
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 file_query_schema = {
@@ -376,82 +242,38 @@ file_query_schema = {
         "startDate": {
             "type": "string",
             "format": "date-time",
-            "default": "2021-01-01T00:00:00Z"
+            "default": "2021-01-01T00:00:00Z",
         },
-        "pageSize": {
-            "type": "integer",
-            "default": 10
-        },
+        "pageSize": {"type": "integer", "default": 10},
         "pageKey": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "namePrefix": {
-            "type": ["string", "null"]
-        },
-        "createdAtPrefix": {
-            "type": ["string", "null"]
-        },
-        "typePrefix": {
-            "type": ["string", "null"]
-        },
-        "types": {
-            "type": "array",
-            "items": {
-                "type": "string"
+                "id": {"type": "string"},
+                "createdAt": {"type": "string"},
+                "type": {"type": "string"},
             },
-            "default": []
         },
-        "tags": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "default": []
-        },
-        "pageIndex": {
-            "type": "integer",
-            "default": 0
-        },
-        "forwardScan": {
-            "type": "boolean",
-            "default": True
-        },
-        "sortIndex": {
-            "type": "string",
-            "default": "createdAt"
-        }
+        "namePrefix": {"type": ["string", "null"]},
+        "createdAtPrefix": {"type": ["string", "null"]},
+        "typePrefix": {"type": ["string", "null"]},
+        "types": {"type": "array", "items": {"type": "string"}, "default": []},
+        "tags": {"type": "array", "items": {"type": "string"}, "default": []},
+        "pageIndex": {"type": "integer", "default": 0},
+        "forwardScan": {"type": "boolean", "default": True},
+        "sortIndex": {"type": "string", "default": "createdAt"},
     },
-    "additionalProperties": False
+    "additionalProperties": False,
 }
-
 
 
 key_request_schema = {
     "type": "object",
     "properties": {
-        "key": {
-            "type": "string",
-            "description": "Key."
-        },
-        "groupId": {
-            "type": "string",
-            "description": "Group Id."
-        }
+        "key": {"type": "string", "description": "Key."},
+        "groupId": {"type": "string", "description": "Group Id."},
     },
-    "required": ["key"]
+    "required": ["key"],
 }
-
 
 
 add_charge = {
@@ -462,7 +284,7 @@ add_charge = {
         "description": {"type": "string"},
         "details": {"type": "object"},
     },
-    "required": ["accountId", "charge", "description", "details"]
+    "required": ["accountId", "charge", "description", "details"],
 }
 
 
@@ -476,30 +298,30 @@ save_accounts_schema = {
                 "properties": {
                     "id": {
                         "type": "string",
-                        "description": "A unique identifier for the account."
+                        "description": "A unique identifier for the account.",
                     },
                     "name": {
                         "type": "string",
-                        "description": "The name of the account."
+                        "description": "The name of the account.",
                     },
                     "isDefault": {
                         "type": "boolean",
-                        "description": "Indicates if this is the default account."
+                        "description": "Indicates if this is the default account.",
                     },
-                     "rateLimit": {
+                    "rateLimit": {
                         "type": "object",
                         "properties": {
-                            "rate": { "type": ["number", "null"] },
-                            "period": { "type": "string" } 
+                            "rate": {"type": ["number", "null"]},
+                            "period": {"type": "string"},
                         },
-                        "description": "Cost restriction using the API key"
+                        "description": "Cost restriction using the API key",
                     },
                 },
-                "required": ["id", "name", 'rateLimit']
-            }
+                "required": ["id", "name", "rateLimit"],
+            },
         }
     },
-    "required": ["accounts"]
+    "required": ["accounts"],
 }
 
 convert_schema = {
@@ -507,27 +329,27 @@ convert_schema = {
     "properties": {
         "format": {
             "type": "string",
-            "description": "The format to convert to docx|pptx"
+            "description": "The format to convert to docx|pptx",
         },
         "conversationHeader": {
             "type": "string",
-            "description": "A markdown header to use for each conversation"
+            "description": "A markdown header to use for each conversation",
         },
         "messageHeader": {
             "type": "string",
-            "description": "A markdown header to use for each message"
+            "description": "A markdown header to use for each message",
         },
         "userHeader": {
             "type": "string",
-            "description": "A markdown header to use for each user message"
+            "description": "A markdown header to use for each user message",
         },
         "assistantHeader": {
             "type": "string",
-            "description": "A markdown header to use for each assistant message"
+            "description": "A markdown header to use for each assistant message",
         },
         "content": export_schema,
     },
-    "required": ["format", "content"]
+    "required": ["format", "content"],
 }
 
 
@@ -538,10 +360,10 @@ conversation_ids_schema = {
             "type": "array",
             "items": {
                 "type": "string",
-            }
+            },
         }
     },
-    "required": ["conversationIds"]
+    "required": ["conversationIds"],
 }
 
 save_settings_schema = {
@@ -550,83 +372,56 @@ save_settings_schema = {
         "settings": {
             "type": "object",
             "properties": {
-                "theme": {
-                    "type": "string",
-                    "enum": ["light", "dark"]
-                },
+                "theme": {"type": "string", "enum": ["light", "dark"]},
                 "featureOptions": {
                     "type": "object",
-                    "additionalProperties": {
-                        "type": "boolean"
-                    }
+                    "additionalProperties": {"type": "boolean"},
                 },
                 "hiddenModelIds": {
                     "type": "array",
                     "items": {
                         "type": "string",
-                    }
-                }
+                    },
+                },
             },
-            "required": ["theme", "featureOptions", "hiddenModelIds"]
+            "required": ["theme", "featureOptions", "hiddenModelIds"],
         }
     },
-    "required": ["settings"]
+    "required": ["settings"],
 }
 
 register_conversation_schema = {
     "type": "object",
     "properties": {
-        "id": {
-            "type": "string"
-        },
-        "name": {
-            "type": "string"
-        },
+        "id": {"type": "string"},
+        "name": {"type": "string"},
         "messages": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
-                    "role": {
-                        "type": "string",
-                        "enum": ["system", "user", "assistant"] 
-                    },
-                    "content": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "type": ["object", "null"],
-                        "additionalProperties": True
-                    },
+                    "role": {"type": "string", "enum": ["system", "user", "assistant"]},
+                    "content": {"type": "string"},
+                    "data": {"type": ["object", "null"], "additionalProperties": True},
                 },
-                "required": ["role", "content", "data"]
-            }
+                "required": ["role", "content", "data"],
+            },
         },
-        "tags": {
-            "type": ["array", "null"],
-            "items": {
-                "type": "string"
-            }
-        },
+        "tags": {"type": ["array", "null"], "items": {"type": "string"}},
         "date": {
             "type": "string",
-            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
         },
-        "data": {
-            "type": ["object", "null"],
-            "additionalProperties": True
-        },
+        "data": {"type": ["object", "null"], "additionalProperties": True},
     },
-    "required": ["name", "messages"]
+    "required": ["name", "messages"],
 }
 
 compressed_conversation_schema = {
     "type": "object",
     "properties": {
-        "conversation": {
-            "type": "array"
-        },
-        "conversationId" : {
+        "conversation": {"type": "array"},
+        "conversationId": {
             "type": "string",
         },
         "folder": {
@@ -634,31 +429,25 @@ compressed_conversation_schema = {
                 {
                     "type": "object",
                     "properties": {
-                        "id": {
-                            "type": "string"
-                        },
+                        "id": {"type": "string"},
                         "date": {
                             "type": "string",
                             "format": "date",
-                            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+                            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
                         },
-                        "name": {
-                            "type": "string"
-                        },
+                        "name": {"type": "string"},
                         "type": {
                             "type": "string",
-                            "enum": ["chat", "prompt", "workflow"]
-                        }
+                            "enum": ["chat", "prompt", "workflow"],
+                        },
                     },
-                    "required": ["id", "name", "type"]
+                    "required": ["id", "name", "type"],
                 },
-                {
-                    "type": "null"
-                }
+                {"type": "null"},
             ]
-        }
+        },
     },
-    "required": ["conversation", "conversationId"]
+    "required": ["conversation", "conversationId"],
 }
 
 set_metdata_schema = {
@@ -667,153 +456,82 @@ set_metdata_schema = {
     "properties": {
         "id": {
             "type": "string",
-            "description": "The unique id for the datasource item."
+            "description": "The unique id for the datasource item.",
         },
-        "name": {
-            "type": "string",
-            "description": "The name of the data item."
-        },
-        "type": {
-            "type": "string",
-            "description": "The type of the data item."
-        },
+        "name": {"type": "string", "description": "The name of the data item."},
+        "type": {"type": "string", "description": "The type of the data item."},
         "knowledge_base": {
             "type": "string",
             "description": "The knowledge base, default is 'default'.",
-            "default": "default"
+            "default": "default",
         },
         "data": {
             "type": "object",
             "description": "Additional properties for the data item.",
-            "default": {}
+            "default": {},
         },
         "tags": {
             "type": "array",
             "description": "A list of tags associated with the data item.",
-            "items": {
-                "type": "string"
-            },
-            "default": []
-        }
+            "items": {"type": "string"},
+            "default": [],
+        },
     },
-    "required": ["id", "name", "type"]
+    "required": ["id", "name", "type"],
 }
 
 validators = {
-    "/state/share": {
-        "append": share_schema,
-        "read": {}
-    },
-    "/state/share/load": {
-        "load": share_load_schema
-    },
-    "/datasource/metadata/set": {
-        "set": set_metdata_schema
-    },
-    "/files/upload": {
-        "upload": file_upload_schema
-    },
-    "/files/download": {
-        "download": key_request_schema
-    },
-    "/files/set_tags": {
-        "set_tags": file_set_tags_schema
-    },
-    "/files/tags/delete": {
-        "delete": user_delete_tag_schema
-    },
-    "/files/tags/create": {
-        "create": create_tags_schema
-    },
-    "/files/tags/list": {
-        "list": {}
-    },
-    "/files/query": {
-        "query": file_query_schema
-    },
-    "/chat/convert": {
-        "convert": convert_schema
-    },
-    "/state/accounts/charge": {
-        "create_charge": add_charge
-    },
-    "/state/accounts/save": {
-        "save": save_accounts_schema
-    },
-    "/state/accounts/get": {
-        "get": {}
-    },
-    "/state/conversation/upload": {   
+    "/state/share": {"append": share_schema, "read": {}},
+    "/state/share/load": {"load": share_load_schema},
+    "/datasource/metadata/set": {"set": set_metdata_schema},
+    "/files/upload": {"upload": file_upload_schema},
+    "/files/download": {"download": key_request_schema},
+    "/files/set_tags": {"set_tags": file_set_tags_schema},
+    "/files/tags/delete": {"delete": user_delete_tag_schema},
+    "/files/tags/create": {"create": create_tags_schema},
+    "/files/tags/list": {"list": {}},
+    "/files/query": {"query": file_query_schema},
+    "/chat/convert": {"convert": convert_schema},
+    "/state/accounts/charge": {"create_charge": add_charge},
+    "/state/accounts/save": {"save": save_accounts_schema},
+    "/state/accounts/get": {"get": {}},
+    "/state/conversation/upload": {
         "conversation_upload": compressed_conversation_schema
     },
-    "/state/conversation/register" : {
+    "/state/conversation/register": {
         "conversation_upload": register_conversation_schema
     },
-    "/state/conversation/get/multiple": {   
+    "/state/conversation/get/multiple": {
         "get_multiple_conversations": conversation_ids_schema
     },
-    "/state/conversation/get": {
-        "read" : {}
-    },
-    "/state/conversation/get/all": {
-        "read" : {}
-    },
-    "/state/conversation/get/empty": {
-        "read" : {}
-    },
-    "/state/conversation/delete_multiple": {   
+    "/state/conversation/get": {"read": {}},
+    "/state/conversation/get/all": {"read": {}},
+    "/state/conversation/get/empty": {"read": {}},
+    "/state/conversation/delete_multiple": {
         "delete_multiple_conversations": conversation_ids_schema
     },
-    "/state/conversation/delete": {
-        "delete" : {}
-    },
-    "/chat": {
-        "chat": chat_input_schema
-    },
-    "/state/settings/save": {
-        "save": save_settings_schema
-    },
-    "/state/settings/get": {
-        "get": {}
-    },
-
+    "/state/conversation/delete": {"delete": {}},
+    "/chat": {"chat": chat_input_schema},
+    "/state/settings/save": {"save": save_settings_schema},
+    "/state/settings/get": {"get": {}},
 }
 
 api_validators = {
-    "/state/share": {
-        "read": {}
-    },
-    "/state/share/load": {
-        "load": share_load_schema
-    },
-    "/files/upload": {
-        "upload": file_upload_schema
-    },
-    "/files/set_tags": {
-        "set_tags": file_set_tags_schema
-    },
-    "/files/tags/delete": {
-        "delete": user_delete_tag_schema
-    },
-    "/files/tags/create": {
-        "create": create_tags_schema
-    },
-    "/files/tags/list": {
-        "list": {}
-    },
-    "/files/query": {
-        "query": file_query_schema
-    },
-    "/chat": {
-        "chat": chat_input_schema
-    },
-    "/files/download": {
-        "download": key_request_schema
-    },
-    "/state/conversation/register" : {
+    "/state/share": {"read": {}},
+    "/state/share/load": {"load": share_load_schema},
+    "/files/upload": {"upload": file_upload_schema},
+    "/files/set_tags": {"set_tags": file_set_tags_schema},
+    "/files/tags/delete": {"delete": user_delete_tag_schema},
+    "/files/tags/create": {"create": create_tags_schema},
+    "/files/tags/list": {"list": {}},
+    "/files/query": {"query": file_query_schema},
+    "/chat": {"chat": chat_input_schema},
+    "/files/download": {"download": key_request_schema},
+    "/state/conversation/register": {
         "conversation_upload": register_conversation_schema
     },
 }
+
 
 def validate_data(name, op, data, api_accessed):
     # print(f"Name: {name} and Op: {op} and Data: {data}")
@@ -836,11 +554,11 @@ def parse_and_validate(current_user, event, op, api_accessed, validate_body=True
     data = {}
     if validate_body:
         try:
-            data = json.loads(event['body']) if event.get('body') else {}
+            data = json.loads(event["body"]) if event.get("body") else {}
         except json.decoder.JSONDecodeError as e:
             raise BadRequest("Unable to parse JSON body.")
 
-    name = event['path']
+    name = event["path"]
 
     if not name:
         raise BadRequest("Unable to perform the operation, invalid request.")
@@ -861,10 +579,10 @@ def parse_and_validate(current_user, event, op, api_accessed, validate_body=True
     return [name, data]
 
 
-
 # Make sure ALGORITHMS is defined somewhere, e.g., ALGORITHMS = ["RS256"]
 
-idpPrefix = os.environ['IDP_PREFIX']
+idpPrefix = os.environ["IDP_PREFIX"]
+
 
 def validated(op, validate_body=True):
     def decorator(f):
@@ -872,9 +590,13 @@ def validated(op, validate_body=True):
             try:
 
                 token = parseToken(event)
-                api_accessed = token[:4] == 'amp-'
+                api_accessed = token[:4] == "amp-"
 
-                claims = api_claims(event, context, token) if (api_accessed) else get_claims(event, context, token)
+                claims = (
+                    api_claims(event, context, token)
+                    if (api_accessed)
+                    else get_claims(event, context, token)
+                )
 
                 current_user = claims["username"]
 
@@ -882,25 +604,25 @@ def validated(op, validate_body=True):
                 if current_user is None:
                     raise Unauthorized("User not found.")
 
-                [name, data] = parse_and_validate(current_user, event, op, api_accessed, validate_body)
-                
-                data['access_token'] = token
-                data['account'] = claims['account']
-                data['api_accessed'] = api_accessed
-                data['allowed_access'] = claims['allowed_access']
+                [name, data] = parse_and_validate(
+                    current_user, event, op, api_accessed, validate_body
+                )
+
+                data["access_token"] = token
+                data["account"] = claims["account"]
+                data["api_accessed"] = api_accessed
+                data["allowed_access"] = claims["allowed_access"]
 
                 result = f(event, context, current_user, name, data)
 
                 return {
                     "statusCode": 200,
-                    "body": json.dumps(result, cls=CombinedEncoder)
+                    "body": json.dumps(result, cls=CombinedEncoder),
                 }
             except HTTPException as e:
                 return {
                     "statusCode": e.status_code,
-                    "body": json.dumps({
-                        "error": f"Error: {e.status_code} - {e}"
-                    })
+                    "body": json.dumps({"error": f"Error: {e.status_code} - {e}"}),
                 }
 
         return wrapper
@@ -911,10 +633,10 @@ def validated(op, validate_body=True):
 def get_claims(event, context, token):
     # https://cognito-idp.<Region>.amazonaws.com/<userPoolId>/.well-known/jwks.json
 
-    oauth_issuer_base_url = os.getenv('OAUTH_ISSUER_BASE_URL')
-    oauth_audience = os.getenv('OAUTH_AUDIENCE')
+    oauth_issuer_base_url = os.getenv("OAUTH_ISSUER_BASE_URL")
+    oauth_audience = os.getenv("OAUTH_AUDIENCE")
 
-    jwks_url = f'{oauth_issuer_base_url}/.well-known/jwks.json'
+    jwks_url = f"{oauth_issuer_base_url}/.well-known/jwks.json"
     jwks = requests.get(jwks_url).json()
 
     header = jwt.get_unverified_header(token)
@@ -926,7 +648,7 @@ def get_claims(event, context, token):
                 "kid": key["kid"],
                 "use": key["use"],
                 "n": key["n"],
-                "e": key["e"]
+                "e": key["e"],
             }
 
     if rsa_key:
@@ -935,10 +657,10 @@ def get_claims(event, context, token):
             rsa_key,
             algorithms=ALGORITHMS,
             audience=oauth_audience,
-            issuer=oauth_issuer_base_url
+            issuer=oauth_issuer_base_url,
         )
-        
-        idp_prefix: str = os.getenv('IDP_PREFIX') or ''
+
+        idp_prefix: str = os.getenv("IDP_PREFIX") or ""
         idp_prefix = idp_prefix.lower()
         print(f"IDP_PREFIX from env: {idp_prefix}")
         print(f"Original username: {payload['username']}")
@@ -947,48 +669,48 @@ def get_claims(event, context, token):
             print(f"Input text: {text}")
             print(f"Checking if text starts with: {idp_prefix + '_'}")
 
-            if len(idp_prefix) > 0 and text.startswith(idp_prefix + '_'):
-                result = text.split(idp_prefix + '_', 1)[1]
+            if len(idp_prefix) > 0 and text.startswith(idp_prefix + "_"):
+                result = text.split(idp_prefix + "_", 1)[1]
                 print(f"Text matched pattern, returning: {result}")
                 return result
-            
+
             print(f"Text did not match pattern, returning original: {text}")
             return text
 
-        user = get_email(payload['username'])
+        user = get_email(payload["username"])
         print(f"Final user value: {user}")
 
-        # grab deafault account from accounts table 
-        dynamodb = boto3.resource('dynamodb')
-        accounts_table_name = os.getenv('ACCOUNTS_DYNAMO_TABLE')
+        # grab deafault account from accounts table
+        dynamodb = boto3.resource("dynamodb")
+        accounts_table_name = os.getenv("ACCOUNTS_DYNAMO_TABLE")
         if not accounts_table_name:
             raise ValueError("ACCOUNTS_DYNAMO_TABLE is not provided.")
 
         table = dynamodb.Table(accounts_table_name)
         account = None
         try:
-            response = table.get_item(Key={'user': user})
-            if 'Item' not in response:
+            response = table.get_item(Key={"user": user})
+            if "Item" not in response:
                 raise ValueError(f"No item found for user: {user}")
 
-            accounts = response['Item'].get('accounts', [])
+            accounts = response["Item"].get("accounts", [])
             for acct in accounts:
-                if acct['isDefault']:
-                    account = acct['id']
-                    
+                if acct["isDefault"]:
+                    account = acct["id"]
+
         except Exception as e:
             print(f"Error retrieving default account: {e}")
 
-        if (not account):
+        if not account:
             print("setting account to general_account")
-            account = 'general_account'   
+            account = "general_account"
 
-        payload['account'] = account
-        payload['username'] = user
+        payload["account"] = account
+        payload["username"] = user
         # Here we can established the allowed access according to the feature flags in the future
         # For now it is set to full_access, which says they can do the operation upon entry of the validated function
         # current access types include: asssistants, share, dual_embedding, chat, file_upload
-        payload['allowed_access'] =  ['full_access']
+        payload["allowed_access"] = ["full_access"]
         return payload
     else:
         print("No RSA Key Found, likely an invalid OAUTH_ISSUER_BASE_URL")
@@ -998,20 +720,20 @@ def get_claims(event, context, token):
 
 def parseToken(event):
     token = None
-    normalized_headers = {k.lower(): v for k, v in event['headers'].items()}
-    authorization_key = 'authorization'
+    normalized_headers = {k.lower(): v for k, v in event["headers"].items()}
+    authorization_key = "authorization"
 
     if authorization_key in normalized_headers:
         parts = normalized_headers[authorization_key].split()
 
         if len(parts) == 2:
             scheme, token = parts
-            if scheme.lower() != 'bearer':
+            if scheme.lower() != "bearer":
                 token = None
 
     if not token:
         raise Unauthorized("No Access Token Found")
-    
+
     return token
 
 
@@ -1019,8 +741,8 @@ def api_claims(event, context, token):
     print("API route was taken")
 
     # Set up DynamoDB connection
-    dynamodb = boto3.resource('dynamodb')
-    api_keys_table_name = os.getenv('API_KEYS_DYNAMODB_TABLE')
+    dynamodb = boto3.resource("dynamodb")
+    api_keys_table_name = os.getenv("API_KEYS_DYNAMODB_TABLE")
     if not api_keys_table_name:
         raise ValueError("API_KEYS_DYNAMODB_TABLE is not provided.")
 
@@ -1029,109 +751,125 @@ def api_claims(event, context, token):
     try:
         # Retrieve item from DynamoDB
         response = table.query(
-            IndexName='ApiKeyIndex',
-            KeyConditionExpression='apiKey = :apiKeyVal',
-            ExpressionAttributeValues={
-                ':apiKeyVal': token
-            }
+            IndexName="ApiKeyIndex",
+            KeyConditionExpression="apiKey = :apiKeyVal",
+            ExpressionAttributeValues={":apiKeyVal": token},
         )
-        items = response['Items']
-
+        items = response["Items"]
 
         if not items:
             print("API key does not exist.")
             raise LookupError("API key not found.")
-        
+
         item = items[0]
 
         # Check if the API key is active
-        if (not item.get('active', False)):
+        if not item.get("active", False):
             print("API key is inactive.")
             raise PermissionError("API key is inactive.")
 
         # Optionally check the expiration date if applicable
-        if (item.get('expirationDate') and datetime.strptime(item['expirationDate'], "%Y-%m-%d") <= datetime.now()):
+        if (
+            item.get("expirationDate")
+            and datetime.strptime(item["expirationDate"], "%Y-%m-%d") <= datetime.now()
+        ):
             print("API key has expired.")
             raise PermissionError("API key has expired.")
 
         # Check for access rights
-        access = item.get('accessTypes', [])
-        if ('file_upload' not in access and 'share' not in access  and
-            'chat' not in access and 'full_access' not in access):
+        access = item.get("accessTypes", [])
+        if (
+            "file_upload" not in access
+            and "share" not in access
+            and "chat" not in access
+            and "full_access" not in access
+        ):
             print("API key doesn't have access to the functionality")
-            raise PermissionError("API key does not have access to the required functionality")
-        
+            raise PermissionError(
+                "API key does not have access to the required functionality"
+            )
+
         # Determine API user
         current_user = determine_api_user(item)
-        
-        rate_limit = item['rateLimit']
+
+        rate_limit = item["rateLimit"]
         if is_rate_limited(current_user, rate_limit):
-                    rate = float(rate_limit['rate'])
-                    period = rate_limit['period']
-                    print(f"You have exceeded your rate limit of ${rate:.2f}/{period}")
-                    raise Unauthorized(f"You have exceeded your rate limit of ${rate:.2f}/{period}")
+            rate = float(rate_limit["rate"])
+            period = rate_limit["period"]
+            print(f"You have exceeded your rate limit of ${rate:.2f}/{period}")
+            raise Unauthorized(
+                f"You have exceeded your rate limit of ${rate:.2f}/{period}"
+            )
 
         # Update last accessed
         table.update_item(
-            Key={'api_owner_id': item['api_owner_id']},
+            Key={"api_owner_id": item["api_owner_id"]},
             UpdateExpression="SET lastAccessed = :now",
-            ExpressionAttributeValues={':now': datetime.now().isoformat()}
+            ExpressionAttributeValues={":now": datetime.now().isoformat()},
         )
         print("Last Access updated")
 
-        return {'username': current_user, 'account': item['account']['id'], 'allowed_access': access}
+        return {
+            "username": current_user,
+            "account": item["account"]["id"],
+            "allowed_access": access,
+        }
 
     except Exception as e:
         print("Error during DynamoDB operation:", str(e))
         raise RuntimeError("Internal server error occurred: ", e)
 
+
 def determine_api_user(data):
     key_type_pattern = r"/(.*?)Key/"
-    match = re.search(key_type_pattern, data['api_owner_id'])
+    match = re.search(key_type_pattern, data["api_owner_id"])
     key_type = match.group(1) if match else None
 
-    if key_type == 'owner':
-        return data.get('owner')
-    elif key_type == 'delegate':
-        return data.get('delegate')
-    elif key_type == 'system':
-        return data.get('systemId')
+    if key_type == "owner":
+        return data.get("owner")
+    elif key_type == "delegate":
+        return data.get("delegate")
+    elif key_type == "system":
+        return data.get("systemId")
     else:
         print("Unknown or missing key type in api_owner_id:", key_type)
         raise Exception("Invalid or unrecognized key type.")
-    
 
 
-def is_rate_limited(current_user, rate_limit): 
+def is_rate_limited(current_user, rate_limit):
     print(rate_limit)
-    if rate_limit['period'] == 'Unlimited': return False
-    
-    cost_calc_table = os.getenv('COST_CALCULATIONS_DYNAMO_TABLE')
-    if not cost_calc_table:
-        raise ValueError("COST_CALCULATIONS_DYNAMO_TABLE is not provided in the environment variables.")
+    if rate_limit["period"] == "Unlimited":
+        return False
 
-    dynamodb = boto3.resource('dynamodb')
+    cost_calc_table = os.getenv("COST_CALCULATIONS_DYNAMO_TABLE")
+    if not cost_calc_table:
+        raise ValueError(
+            "COST_CALCULATIONS_DYNAMO_TABLE is not provided in the environment variables."
+        )
+
+    dynamodb = boto3.resource("dynamodb")
     table = dynamodb.Table(cost_calc_table)
 
     try:
         print("Query cost calculation table")
-        response = table.query(
-            KeyConditionExpression=Key('id').eq(current_user) 
-        )
-        items = response['Items']
+        response = table.query(KeyConditionExpression=Key("id").eq(current_user))
+        items = response["Items"]
         if not items:
             print("Table entry does not exist. Cannot verify if rate limited.")
             return False
 
-        rate_data = items[0] 
+        rate_data = items[0]
 
-        period = rate_limit['period']
+        period = rate_limit["period"]
         col_name = f"{period.lower()}Cost"
 
         spent = rate_data[col_name]
-        if (period == 'Hourly'): spent = spent[datetime.now().hour] # Get the current hour as a number from 0 to 23
+        if period == "Hourly":
+            spent = spent[
+                datetime.now().hour
+            ]  # Get the current hour as a number from 0 to 23
         print(f"Amount spent {spent}")
-        return spent >= rate_limit['rate']
+        return spent >= rate_limit["rate"]
 
     except Exception as error:
         print(f"Error during rate limit DynamoDB operation: {error}")

@@ -18,8 +18,9 @@ RESERVED_TAGS = [
     ASSISTANT_TAG,
     AMPLIFY_AUTOMATION_TAG,
     AMPLIFY_API_KEY_MANAGER_TAG,
-    AMPLIFY_API_DOC_HELPER_TAG
+    AMPLIFY_API_DOC_HELPER_TAG,
 ]
+
 
 def get_system_assistants(current_user):
     sys_assistants = []
@@ -30,69 +31,71 @@ def get_system_assistants(current_user):
     # if ('Amplify_Dev_Api' in groups):  GROUPS are in progress
     sys_assistants.append(get_api_key_manager_assistant())
 
-    #API Doc Helper update permissions:
+    # API Doc Helper update permissions:
     api_doc_helper = get_api_doc_helper_assistant()
     print("Updating permissions for data sources in: ", api_doc_helper["name"])
     result = update_object_permissions(api_doc_helper["dataSources"], current_user)
-    if (result["success"]):
-        print(api_doc_helper["name"] , " added to the sys_assistants list")
+    if result["success"]:
+        print(api_doc_helper["name"], " added to the sys_assistants list")
         sys_assistants.append(api_doc_helper)
-        
-    
+
     return sys_assistants
 
 
 # object access for system assistant documents
-# This is assuming you have already sent them through the rag pipeline 
+# This is assuming you have already sent them through the rag pipeline
 # I did so by using my system api key where I changed the name to Amplify_System_Assistants
 # so we can simply just update permissions
 def update_object_permissions(data_sources, current_user):
-    dynamodb = boto3.resource('dynamodb')
-    table_name = os.environ['OBJECT_ACCESS_DYNAMODB_TABLE']
+    dynamodb = boto3.resource("dynamodb")
+    table_name = os.environ["OBJECT_ACCESS_DYNAMODB_TABLE"]
     try:
         # Get the DynamoDB table
         table = dynamodb.Table(table_name)
-        
-        # data_sources must be global keys 
+
+        # data_sources must be global keys
         for object_id in data_sources:
             print("Current object Id: ", object_id)
-        
+
             # Check if any permissions already exist for the object_id
             query_response = table.query(
-                KeyConditionExpression=boto3.dynamodb.conditions.Key('object_id').eq(object_id)
+                KeyConditionExpression=boto3.dynamodb.conditions.Key("object_id").eq(
+                    object_id
+                )
             )
-            items = query_response.get('Items')
+            items = query_response.get("Items")
 
             if not items:
-                print(" no permissions, create the initial item with the Amplify_System_Assistants as the owner")
-                table.put_item(Item={
-                    'object_id': object_id,
-                    'principal_id': "Amplify_System_Assistants",
-                    'principal_type': 'user',
-                    'object_type': "datasource",
-                    'permission_level': 'owner',  
-                    'policy': None
-                })
+                print(
+                    " no permissions, create the initial item with the Amplify_System_Assistants as the owner"
+                )
+                table.put_item(
+                    Item={
+                        "object_id": object_id,
+                        "principal_id": "Amplify_System_Assistants",
+                        "principal_type": "user",
+                        "object_type": "datasource",
+                        "permission_level": "owner",
+                        "policy": None,
+                    }
+                )
 
             # We dont need to check if we are allowed to do this, we need to for every user prescreen by groups to have the documents
             print("Object ID: ", object_id, " for user: ", current_user)
             # Create or update the permission level for each principal_id
-            principal_key = {
-                'object_id': object_id,
-                'principal_id': current_user
-            }
+            principal_key = {"object_id": object_id, "principal_id": current_user}
             # Use the provided permission level for other users
             update_expression = "SET principal_type = :principal_type, object_type = :object_type, permission_level = :permission_level, policy = :policy"
             expression_attribute_values = {
-                ':principal_type': 'user',
-                ':object_type': "datasource",
-                ':permission_level': 'read', 
-                ':policy': None
+                ":principal_type": "user",
+                ":object_type": "datasource",
+                ":permission_level": "read",
+                ":policy": None,
             }
             table.update_item(
                 Key=principal_key,
                 UpdateExpression=update_expression,
-                ExpressionAttributeValues=expression_attribute_values
+                ExpressionAttributeValues=expression_attribute_values,
             )
 
     except ClientError as e:
@@ -101,10 +104,9 @@ def update_object_permissions(data_sources, current_user):
     except Exception as e:
         print(f"Error processing request: {str(e)}")
         return {"success": False}
-    
+
     print("Permissions updated successfully")
     return {"success": True}
-
 
 
 def get_amplify_automation_assistant():
@@ -147,8 +149,8 @@ Consider this assistant your very own genie, granting your data wishes within Am
     name = "Amplify Automator"
     datasources = []
     tags = [AMPLIFY_AUTOMATION_TAG, SYSTEM_TAG]
-    created_at = time.strftime('%Y-%m-%dT%H:%M:%S')
-    updated_at = time.strftime('%Y-%m-%dT%H:%M:%S')
+    created_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+    updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
     tools = []
     data = {
         "provider": "amplify",
@@ -156,22 +158,22 @@ Consider this assistant your very own genie, granting your data wishes within Am
     }
 
     return {
-        'id': id,
-        'coreHash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'hash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'instructionsHash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'dataSourcesHash': hashlib.sha256(json.dumps(datasources).encode()).hexdigest(),
-        'version': 1,
-        'name': name,
-        'description': description,
-        'instructions': instructions,
-        'tags': tags,
-        'createdAt': created_at,
-        'updatedAt': updated_at,
-        'dataSources': datasources,
-        'data': data,
-        'tools': tools,
-        'user': 'amplify'
+        "id": id,
+        "coreHash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "hash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "instructionsHash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "dataSourcesHash": hashlib.sha256(json.dumps(datasources).encode()).hexdigest(),
+        "version": 1,
+        "name": name,
+        "description": description,
+        "instructions": instructions,
+        "tags": tags,
+        "createdAt": created_at,
+        "updatedAt": updated_at,
+        "dataSources": datasources,
+        "data": data,
+        "tools": tools,
+        "user": "amplify",
     }
 
 
@@ -203,8 +205,8 @@ At the end of every message you output, you will update the assistant in a speci
     name = "Assistant Creator"
     datasources = []
     tags = [ASSISTANT_BUILDER_TAG, SYSTEM_TAG]
-    created_at = time.strftime('%Y-%m-%dT%H:%M:%S')
-    updated_at = time.strftime('%Y-%m-%dT%H:%M:%S')
+    created_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+    updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
     tools = []
     data = {
         "provider": "amplify",
@@ -212,23 +214,24 @@ At the end of every message you output, you will update the assistant in a speci
     }
 
     return {
-        'id': id,
-        'coreHash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'hash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'instructionsHash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'dataSourcesHash': hashlib.sha256(json.dumps(datasources).encode()).hexdigest(),
-        'version': 1,
-        'name': name,
-        'description': description,
-        'instructions': instructions,
-        'tags': tags,
-        'createdAt': created_at,
-        'updatedAt': updated_at,
-        'dataSources': datasources,
-        'data': data,
-        'tools': tools,
-        'user': 'amplify'
+        "id": id,
+        "coreHash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "hash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "instructionsHash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "dataSourcesHash": hashlib.sha256(json.dumps(datasources).encode()).hexdigest(),
+        "version": 1,
+        "name": name,
+        "description": description,
+        "instructions": instructions,
+        "tags": tags,
+        "createdAt": created_at,
+        "updatedAt": updated_at,
+        "dataSources": datasources,
+        "data": data,
+        "tools": tools,
+        "user": "amplify",
     }
+
 
 def get_api_key_manager_assistant():
     instructions = """
@@ -392,13 +395,15 @@ def get_api_key_manager_assistant():
     If you are missing the data API KEYS, ACCOUNTS, and Current User please let the user know you are unable to process their request at this time due unable internal server error and to please try again later.
     """
 
-    description = "This assistant will guide you through the process of managing Amplify API Keys"
+    description = (
+        "This assistant will guide you through the process of managing Amplify API Keys"
+    )
     id = "ast/assistant-api-key-manager"
     name = "Amplify API Key Manager"
     datasources = []
     tags = [AMPLIFY_API_KEY_MANAGER_TAG, SYSTEM_TAG]
-    created_at = time.strftime('%Y-%m-%dT%H:%M:%S')
-    updated_at = time.strftime('%Y-%m-%dT%H:%M:%S')
+    created_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+    updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
     tools = []
     data = {
         "provider": "amplify",
@@ -406,28 +411,29 @@ def get_api_key_manager_assistant():
     }
 
     return {
-        'id': id,
-        'coreHash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'hash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'instructionsHash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'dataSourcesHash': hashlib.sha256(json.dumps(datasources).encode()).hexdigest(),
-        'version': 1,
-        'name': name,
-        'description': description,
-        'instructions': instructions,
-        'tags': tags,
-        'createdAt': created_at,
-        'updatedAt': updated_at,
-        'dataSources': datasources,
-        'data': data,
-        'tools': tools,
-        'user': 'amplify'
+        "id": id,
+        "coreHash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "hash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "instructionsHash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "dataSourcesHash": hashlib.sha256(json.dumps(datasources).encode()).hexdigest(),
+        "version": 1,
+        "name": name,
+        "description": description,
+        "instructions": instructions,
+        "tags": tags,
+        "createdAt": created_at,
+        "updatedAt": updated_at,
+        "dataSources": datasources,
+        "data": data,
+        "tools": tools,
+        "user": "amplify",
     }
 
 
-# assistant fails to list all the endpoints when solely relying on the documentation 
+# assistant fails to list all the endpoints when solely relying on the documentation
 def get_api_doc_helper_assistant():
-    instructions = """
+    instructions = (
+        """
     You will provide example code snippets and requests data, outline expected responses and error messages accurately, and lists all available endpoints with HTTP methods upon request, including categories like states, tags, files, assistants, embeddings, code interpreter, and delete endpoints. 
     Assumes the audience has basic HTTP knowledge but no prior document familiarity and provide complete information from the document. 
     When creating a Postman or any requests payload body, you base it on the example body provided in the document but modifies variables to fit the user's request. The assistant always strives for clarity, accuracy, and completeness in its responses.
@@ -452,7 +458,8 @@ def get_api_doc_helper_assistant():
         {} 
     ```
     Always responsd with a APIdoc when asked to see documents/documentations. Always ensure the object is left blank inside the block and any text needs to go outside of the block
-    """ +  f"""
+    """
+        + f"""
     List all 19 paths/endpoints when specifically asked what the are the available paths/endpoints:
         Amplify Endpoints:
         {os.environ['API_BASE_URL']}
@@ -484,7 +491,8 @@ def get_api_doc_helper_assistant():
         {os.environ['ASSISTANTS_CHAT_CODE_INTERPRETER_ENDPOINT']}
             /assistant/chat/codeinterpreter - POST: Establishes a conversation with Code Interpreter (not AMPLIFY), returning a unique thread id that contains your ongoing conversation. Subsequent API calls will only need new messages. Prereq, create a code interpreter assistant through the /assistant/create/codeinterpreter endpoint 
 
-    """ +  """ NOTE: all endpoint request body are in the format:
+    """
+        + """ NOTE: all endpoint request body are in the format:
         { "data": {
             <REQUEST BODY>
         } 
@@ -495,14 +503,17 @@ def get_api_doc_helper_assistant():
 
         End your resopnse with "You can verify the information through the API documentation. Let me know if you would like to see the it." (IF IT MAKES SENSE TO SAY SO)
         """
+    )
 
     description = "This assistant will guide you through the process of making http calls to Amplify's API. Provides accurate API usage information, example requests, and response explanations without referencing source documents."
     id = "ast/assistant-api-doc-helper"
     name = "Amplify API Assistant"
-    datasources = ["global/6bfca2049da590414caf9e803219d996f4a761a4fffd9a0341d47e373b357f60.content.json"]
+    datasources = [
+        "global/6bfca2049da590414caf9e803219d996f4a761a4fffd9a0341d47e373b357f60.content.json"
+    ]
     tags = [AMPLIFY_API_DOC_HELPER_TAG, SYSTEM_TAG]
-    created_at = time.strftime('%Y-%m-%dT%H:%M:%S')
-    updated_at = time.strftime('%Y-%m-%dT%H:%M:%S')
+    created_at = time.strftime("%Y-%m-%dT%H:%M:%S")
+    updated_at = time.strftime("%Y-%m-%dT%H:%M:%S")
     tools = []
     data = {
         "provider": "amplify",
@@ -510,20 +521,20 @@ def get_api_doc_helper_assistant():
     }
 
     return {
-        'id': id,
-        'coreHash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'hash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'instructionsHash': hashlib.sha256(instructions.encode()).hexdigest(),
-        'dataSourcesHash': hashlib.sha256(json.dumps(datasources).encode()).hexdigest(),
-        'version': 1,
-        'name': name,
-        'description': description,
-        'instructions': instructions,
-        'tags': tags,
-        'createdAt': created_at,
-        'updatedAt': updated_at,
-        'dataSources': datasources,
-        'data': data,
-        'tools': tools,
-        'user': 'amplify',
+        "id": id,
+        "coreHash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "hash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "instructionsHash": hashlib.sha256(instructions.encode()).hexdigest(),
+        "dataSourcesHash": hashlib.sha256(json.dumps(datasources).encode()).hexdigest(),
+        "version": 1,
+        "name": name,
+        "description": description,
+        "instructions": instructions,
+        "tags": tags,
+        "createdAt": created_at,
+        "updatedAt": updated_at,
+        "dataSources": datasources,
+        "data": data,
+        "tools": tools,
+        "user": "amplify",
     }

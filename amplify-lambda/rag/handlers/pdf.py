@@ -1,6 +1,5 @@
-
-#Copyright (c) 2024 Vanderbilt University  
-#Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
+# Copyright (c) 2024 Vanderbilt University
+# Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
 
 import io
 import pypdfium2 as pdfium
@@ -17,7 +16,9 @@ class PDFHandler(TextExtractionHandler):
             num_pages = len(pdf)  # Get the number of pages in the document
 
             for page_index in range(num_pages):
-                page_number = page_index + 1  # Convert zero-based index to one-based page numbering for display
+                page_number = (
+                    page_index + 1
+                )  # Convert zero-based index to one-based page numbering for display
 
                 page = pdf[page_index]  # Load the page using zero-based indexing
                 textpage = page.get_textpage()
@@ -29,10 +30,10 @@ class PDFHandler(TextExtractionHandler):
                     continue
 
                 chunk = {
-                        'content': text,
-                        'tokens': self.num_tokens_from_string(text),
-                        'location': {'page_number': page_number},
-                        'canSplit': True
+                    "content": text,
+                    "tokens": self.num_tokens_from_string(text),
+                    "location": {"page_number": page_number},
+                    "canSplit": True,
                 }
                 chunks.append(chunk)
 

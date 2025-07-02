@@ -15,18 +15,15 @@ from inspect import signature, Parameter, Signature
 
 
 def tag_file(api_url, file_key, access_token, tags):
-    data = {
-        "data": {
-            "id": file_key,
-            "tags": tags
-        }
-    }
+    data = {"data": {"id": file_key, "tags": tags}}
     headers = {
-        'Accept': '*/*',
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json'
+        "Accept": "*/*",
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
     }
-    response = requests.post(api_url+'/files/set_tags', headers=headers, data=json.dumps(data))
+    response = requests.post(
+        api_url + "/files/set_tags", headers=headers, data=json.dumps(data)
+    )
     response.raise_for_status()  # Raise an exception for HTTP errors
     result = response.json()
     return result
@@ -38,13 +35,13 @@ def upload_file(api_url, access_token, file_path, tags=[]):
     content_type, _ = mimetypes.guess_type(file_path)
 
     if content_type is None:
-        content_type = 'application/octet-stream'
+        content_type = "application/octet-stream"
 
     # First step: Get the presigned URL
     headers = {
-        'Accept': '*/*',
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': content_type
+        "Accept": "*/*",
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": content_type,
     }
     data = {
         "data": {
@@ -53,28 +50,27 @@ def upload_file(api_url, access_token, file_path, tags=[]):
             "name": file_name,
             "knowledgeBase": "default",
             "tags": tags,
-            "data": {}
+            "data": {},
         }
     }
 
-    response = requests.post(api_url+'/files/upload', headers=headers, data=json.dumps(data))
+    response = requests.post(
+        api_url + "/files/upload", headers=headers, data=json.dumps(data)
+    )
     response.raise_for_status()  # Raise an exception for HTTP errors
     presigned_data = response.json()
 
     # Extract the presigned URL
-    presigned_url = presigned_data['uploadUrl']
+    presigned_url = presigned_data["uploadUrl"]
 
     # Second step: Upload the file to the presigned URL
-    with open(file_path, 'rb') as file:
-        headers = {
-            'Accept': '*/*',
-            'Content-Type': content_type
-        }
+    with open(file_path, "rb") as file:
+        headers = {"Accept": "*/*", "Content-Type": content_type}
         upload_response = requests.put(presigned_url, data=file, headers=headers)
         upload_response.raise_for_status()  # Raise an exception for HTTP errors
 
     # Extract the key from the response JSON
-    file_key = presigned_data.get('key')
+    file_key = presigned_data.get("key")
 
     # Tag the file
     if tags:
@@ -158,7 +154,9 @@ def chat(chat_url, access_token, payload):
     return concatenated_d_data, meta_events
 
 
-def chat_streaming(chat_url, access_token, payload, content_handler, meta_handler = lambda x: None):
+def chat_streaming(
+    chat_url, access_token, payload, content_handler, meta_handler=lambda x: None
+):
     """
     Invoke the specified endpoint with a JSON payload and handle the streamed response
     by providing the streamed events to the content_handler and meta_handler.
@@ -216,8 +214,8 @@ def chat_streaming(chat_url, access_token, payload, content_handler, meta_handle
 
     """
     headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json'
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
     }
 
     # Send POST request to the specified URL
@@ -231,7 +229,7 @@ def chat_streaming(chat_url, access_token, payload, content_handler, meta_handle
         if line:
             try:
                 # Remove 'data: ' prefix if present
-                stripped_line = line.decode('utf-8').lstrip("data: ").strip()
+                stripped_line = line.decode("utf-8").lstrip("data: ").strip()
                 if stripped_line:
                     data = json.loads(stripped_line)
                     if data.get("s") == "meta":
@@ -245,7 +243,7 @@ def chat_streaming(chat_url, access_token, payload, content_handler, meta_handle
 
 def extract_and_parse_yaml(input_string):
     # Regular expression to extract the YAML block
-    yaml_pattern = re.compile(r'```yaml\s*(.*?)\s*```', re.DOTALL)
+    yaml_pattern = re.compile(r"```yaml\s*(.*?)\s*```", re.DOTALL)
     match = yaml_pattern.search(input_string)
 
     if match:
@@ -257,29 +255,31 @@ def extract_and_parse_yaml(input_string):
         return None
 
 
-def chat_llm(docstring: str,
-             system_prompt: str, inputs: Dict[str, Any],
-             input_instance: BaseModel,
-             output_model: Type[BaseModel],
-             chat_url: str,
-             access_token: str,
-             params: Dict[str, Any]={}) -> BaseModel:
+def chat_llm(
+    docstring: str,
+    system_prompt: str,
+    inputs: Dict[str, Any],
+    input_instance: BaseModel,
+    output_model: Type[BaseModel],
+    chat_url: str,
+    access_token: str,
+    params: Dict[str, Any] = {},
+) -> BaseModel:
     # Concatenate input variable names, their values, and their descriptions.
     input_descriptions = "\n".join(
-        f"{field}: {getattr(input_instance, field)}" +
-        (f" - {field_info.description}" if field_info.description else "")
+        f"{field}: {getattr(input_instance, field)}"
+        + (f" - {field_info.description}" if field_info.description else "")
         for field, field_info in input_instance.__class__.__fields__.items()
     )
 
     output_descriptions = "\n".join(
-        f"{field}:" +
-        (f" {field_info.description}" if field_info.description else "")
+        f"{field}:" + (f" {field_info.description}" if field_info.description else "")
         for field, field_info in output_model.__fields__.items()
     )
 
     prompt_template = f"{system_prompt}\n{docstring}\nInputs:\n{input_descriptions}\nOutputs:\n{output_descriptions}"
 
-    #print(f"Prompt Template: {prompt_template}")
+    # print(f"Prompt Template: {prompt_template}")
 
     system_data_prompt = f"""
     Follow the user's instructions very carefully.
@@ -302,18 +302,20 @@ def chat_llm(docstring: str,
         {
             "role": "system",
             "content": system_data_prompt,
-        })
+        }
+    )
     messages.append(
         {
             "role": "user",
             "content": prompt_template,
             "type": "prompt",
             "data": {},
-            "id": str(uuid.uuid4())
-        })
+            "id": str(uuid.uuid4()),
+        }
+    )
 
     payload = {
-        "model": params.get("model", os.environ.get('AMPLIFY_MODEL', 'gpt-4o')),
+        "model": params.get("model", os.environ.get("AMPLIFY_MODEL", "gpt-4o")),
         "temperature": params.get("temperature", 1.0),
         "max_tokens": params.get("max_tokens", 1000),
         "stream": True,
@@ -326,14 +328,24 @@ def chat_llm(docstring: str,
             },
             "prompt": system_data_prompt,
             "dataSourceOptions": {
-                'insertConversationDocuments': params.get('insert_conversation_documents', False),
-                'insertAttachedDocuments': params.get('insert_attached_documents', True),
-                'ragConversationDocuments': params.get('rag_conversation_documents', True),
-                'ragAttachedDocuments': params.get('rag_attached_documents', False),
-                'insertConversationDocumentsMetadata': params.get('insert_conversation_documents_metadata', False),
-                'insertAttachedDocumentsMetadata': params.get('insert_attached_documents_metadata', False),
+                "insertConversationDocuments": params.get(
+                    "insert_conversation_documents", False
+                ),
+                "insertAttachedDocuments": params.get(
+                    "insert_attached_documents", True
+                ),
+                "ragConversationDocuments": params.get(
+                    "rag_conversation_documents", True
+                ),
+                "ragAttachedDocuments": params.get("rag_attached_documents", False),
+                "insertConversationDocumentsMetadata": params.get(
+                    "insert_conversation_documents_metadata", False
+                ),
+                "insertAttachedDocumentsMetadata": params.get(
+                    "insert_attached_documents_metadata", False
+                ),
             },
-        }
+        },
     }
 
     # Create an output model instance with the generated prompt template.
@@ -360,23 +372,90 @@ def prompt(system_prompt: str = ""):
             sig = signature(func)
 
             new_params = [
-                Parameter("chat_url", Parameter.KEYWORD_ONLY, annotation=str, default=os.getenv('AMPLIFY_CHAT_URL')),
-                Parameter("access_token", Parameter.KEYWORD_ONLY, annotation=str, default=os.getenv('AMPLIFY_TOKEN')),
-                Parameter("api_key", Parameter.KEYWORD_ONLY, annotation=str, default=os.getenv('AMPLIFY_API_KEY')),
-                Parameter("system_prompt", Parameter.KEYWORD_ONLY, annotation=str, default=None),
-                Parameter("insert_conversation_documents", Parameter.KEYWORD_ONLY, annotation=bool, default=False),
-                Parameter("insert_attached_documents", Parameter.KEYWORD_ONLY, annotation=bool, default=True),
-                Parameter("rag_conversation_documents", Parameter.KEYWORD_ONLY, annotation=bool, default=True),
-                Parameter("rag_attached_documents", Parameter.KEYWORD_ONLY, annotation=bool, default=False),
-                Parameter("insert_conversation_documents_metadata", Parameter.KEYWORD_ONLY, annotation=bool, default=False),
-                Parameter("insert_attached_documents_metadata", Parameter.KEYWORD_ONLY, annotation=bool, default=False),
-                Parameter("model", Parameter.KEYWORD_ONLY, annotation=str, default="gpt-4o"),
-                Parameter("temperature", Parameter.KEYWORD_ONLY, annotation=float, default=1.0),
-                Parameter("max_tokens", Parameter.KEYWORD_ONLY, annotation=int, default=1000),
-                Parameter("stream", Parameter.KEYWORD_ONLY, annotation=bool, default=True),
-                Parameter("data_sources", Parameter.KEYWORD_ONLY, annotation=list, default=[]),
-                Parameter("messages", Parameter.KEYWORD_ONLY, annotation=list, default=None),
-                Parameter("request_id", Parameter.KEYWORD_ONLY, annotation=str, default=str(uuid.uuid4())),
+                Parameter(
+                    "chat_url",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=str,
+                    default=os.getenv("AMPLIFY_CHAT_URL"),
+                ),
+                Parameter(
+                    "access_token",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=str,
+                    default=os.getenv("AMPLIFY_TOKEN"),
+                ),
+                Parameter(
+                    "api_key",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=str,
+                    default=os.getenv("AMPLIFY_API_KEY"),
+                ),
+                Parameter(
+                    "system_prompt",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=str,
+                    default=None,
+                ),
+                Parameter(
+                    "insert_conversation_documents",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=bool,
+                    default=False,
+                ),
+                Parameter(
+                    "insert_attached_documents",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=bool,
+                    default=True,
+                ),
+                Parameter(
+                    "rag_conversation_documents",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=bool,
+                    default=True,
+                ),
+                Parameter(
+                    "rag_attached_documents",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=bool,
+                    default=False,
+                ),
+                Parameter(
+                    "insert_conversation_documents_metadata",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=bool,
+                    default=False,
+                ),
+                Parameter(
+                    "insert_attached_documents_metadata",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=bool,
+                    default=False,
+                ),
+                Parameter(
+                    "model", Parameter.KEYWORD_ONLY, annotation=str, default="gpt-4o"
+                ),
+                Parameter(
+                    "temperature", Parameter.KEYWORD_ONLY, annotation=float, default=1.0
+                ),
+                Parameter(
+                    "max_tokens", Parameter.KEYWORD_ONLY, annotation=int, default=1000
+                ),
+                Parameter(
+                    "stream", Parameter.KEYWORD_ONLY, annotation=bool, default=True
+                ),
+                Parameter(
+                    "data_sources", Parameter.KEYWORD_ONLY, annotation=list, default=[]
+                ),
+                Parameter(
+                    "messages", Parameter.KEYWORD_ONLY, annotation=list, default=None
+                ),
+                Parameter(
+                    "request_id",
+                    Parameter.KEYWORD_ONLY,
+                    annotation=str,
+                    default=str(uuid.uuid4()),
+                ),
             ]
 
             updated_params = list(sig.parameters.values())
@@ -392,23 +471,29 @@ def prompt(system_prompt: str = ""):
             bound_args = new_sig.bind(*args, **kwargs)
             bound_args.apply_defaults()
 
-            chat_url = kwargs.get('chat_url', os.getenv('AMPLIFY_CHAT_URL'))
-            access_token = kwargs.get('access_token', os.getenv('AMPLIFY_TOKEN'))
-            passed_system_prompt = kwargs.get('system_prompt', None)
-            api_key = kwargs.get('api_key', None)
-            model = kwargs.get('model', os.getenv('AMPLIFY_DEFAULT_MODEL', None))
+            chat_url = kwargs.get("chat_url", os.getenv("AMPLIFY_CHAT_URL"))
+            access_token = kwargs.get("access_token", os.getenv("AMPLIFY_TOKEN"))
+            passed_system_prompt = kwargs.get("system_prompt", None)
+            api_key = kwargs.get("api_key", None)
+            model = kwargs.get("model", os.getenv("AMPLIFY_DEFAULT_MODEL", None))
 
             if not chat_url:
-                raise ValueError("You must provide the URL of the Ampllify chat API to @prompt. Please set the "
-                                 "environment variable 'AMPLIFY_CHAT_URL'.")
+                raise ValueError(
+                    "You must provide the URL of the Ampllify chat API to @prompt. Please set the "
+                    "environment variable 'AMPLIFY_CHAT_URL'."
+                )
 
             if not api_key and not access_token:
-                raise ValueError("You must provide an access token or API key to @prompt. Please set one of the "
-                                 "environment variables 'AMPLIFY_TOKEN' or 'AMPLIFY_API_KEY'.")
+                raise ValueError(
+                    "You must provide an access token or API key to @prompt. Please set one of the "
+                    "environment variables 'AMPLIFY_TOKEN' or 'AMPLIFY_API_KEY'."
+                )
 
             if not model:
-                raise ValueError("You must provide a model to the function as a keyword arg or set the environment "
-                                 "variable 'AMPLIFY_DEFAULT_MODEL'.")
+                raise ValueError(
+                    "You must provide a model to the function as a keyword arg or set the environment "
+                    "variable 'AMPLIFY_DEFAULT_MODEL'."
+                )
 
             # Extract the first argument from bound arguments, which should be the input model instance
             input_model_instance = next(iter(bound_args.arguments.values()))
@@ -421,10 +506,12 @@ def prompt(system_prompt: str = ""):
 
             # Get function annotations and extract the output model from the return type annotation
             annotations = get_type_hints(func)
-            output_model = annotations.get('return')
+            output_model = annotations.get("return")
 
             if not output_model or not issubclass(output_model, BaseModel):
-                raise ValueError("You must specify a Pydantic BaseModel as the return type in the function annotations.")
+                raise ValueError(
+                    "You must specify a Pydantic BaseModel as the return type in the function annotations."
+                )
 
             result = None
             max_retries = 3
@@ -441,14 +528,15 @@ def prompt(system_prompt: str = ""):
                         output_model=output_model,
                         chat_url=chat_url,
                         access_token=access_token or api_key,
-                        params=kwargs
+                        params=kwargs,
                     )
                 except Exception as e:
                     print(f"Error: {e}")
                     print("Retrying...")
                     continue
 
-
             return result
+
         return wrapper
+
     return decorator

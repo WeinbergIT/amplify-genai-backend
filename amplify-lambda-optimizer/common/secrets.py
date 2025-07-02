@@ -6,17 +6,17 @@ import json
 
 from botocore.exceptions import ClientError
 
-DEFAULT_PREFIX = os.getenv('DEFAULT_SECRET_PARAMETER_PREFIX', '/pdb')
+DEFAULT_PREFIX = os.getenv("DEFAULT_SECRET_PARAMETER_PREFIX", "/pdb")
 
 
 def get_secret_value(secret_name):
     # Create a Secrets Manager client
-    client = boto3.client('secretsmanager')
+    client = boto3.client("secretsmanager")
 
     try:
         # Retrieve the secret value
         response = client.get_secret_value(SecretId=secret_name)
-        secret_value = response['SecretString']
+        secret_value = response["SecretString"]
         return secret_value
 
     except Exception as e:
@@ -38,14 +38,14 @@ def store_secret_parameter(parameter_name, secret_value, prefix=DEFAULT_PREFIX):
 
     full_parameter_name = f"{prefix}/{parameter_name}"
 
-    ssm_client = boto3.client('ssm')
+    ssm_client = boto3.client("ssm")
 
     try:
         response = ssm_client.put_parameter(
             Name=full_parameter_name,
             Value=secret_value,
-            Type='SecureString',
-            Overwrite=True  # Overwrites the parameter if it already exists
+            Type="SecureString",
+            Overwrite=True,  # Overwrites the parameter if it already exists
         )
         return response
     except ClientError as e:
@@ -67,14 +67,13 @@ def get_secret_parameter(parameter_name, prefix=DEFAULT_PREFIX):
 
     full_parameter_name = f"{prefix}/{parameter_name}"
 
-    ssm_client = boto3.client('ssm')
+    ssm_client = boto3.client("ssm")
 
     try:
         response = ssm_client.get_parameter(
-            Name=full_parameter_name,
-            WithDecryption=True
+            Name=full_parameter_name, WithDecryption=True
         )
-        return response['Parameter']['Value']
+        return response["Parameter"]["Value"]
     except ClientError as e:
         print(f"An error occurred: {e}")
         return None
@@ -91,9 +90,13 @@ def update_dict_with_secrets(input_dict):
     dict: The updated dictionary.
     """
 
-    updated_dict = input_dict.copy()  # Copy the original dictionary to avoid modifying it
+    updated_dict = (
+        input_dict.copy()
+    )  # Copy the original dictionary to avoid modifying it
 
-    for key in list(updated_dict.keys()):  # Use list to avoid RuntimeError due to dictionary size change during iteration
+    for key in list(
+        updated_dict.keys()
+    ):  # Use list to avoid RuntimeError due to dictionary size change during iteration
         if key.startswith("s_"):
             secret_parameter_name = updated_dict[key]
             secret_value = get_secret_parameter(secret_parameter_name)
@@ -116,7 +119,9 @@ def store_secrets_in_dict(input_dict):
     dict: The updated dictionary with values replaced by parameter names.
     """
 
-    updated_dict = input_dict.copy()  # Copy the original dictionary to avoid modifying it
+    updated_dict = (
+        input_dict.copy()
+    )  # Copy the original dictionary to avoid modifying it
 
     for key in updated_dict.keys():
         if key.startswith("s_"):
@@ -125,8 +130,8 @@ def store_secrets_in_dict(input_dict):
             store_secret_parameter(parameter_name, secret_value)
             updated_parameter_name = parameter_name
             if updated_parameter_name:
-                updated_dict[key] = updated_parameter_name  # Replace the value with the parameter name
+                updated_dict[key] = (
+                    updated_parameter_name  # Replace the value with the parameter name
+                )
 
     return updated_dict
-
-

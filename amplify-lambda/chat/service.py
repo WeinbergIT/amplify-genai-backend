@@ -7,6 +7,7 @@ import os
 from botocore.exceptions import ClientError
 import boto3
 
+
 @op(
     path="/chat",
     name="chatWithAmplify",
@@ -45,60 +46,66 @@ import boto3
             "skipRag": "Boolean indicating whether to skip retrieval-augmented generation. Example: true.",
             "assistantId": "String prefixed with 'astp' to identify the assistant. Example: 'astp/abcdefghijk'.",
             "model": "Object containing model-specific configurations, including 'id'. Example: {'id': 'gpt-4o'}. Must match the model id under the model attribute",
-            "prompt": "String representing a system prompt for the model."
-        }
-    }
+            "prompt": "String representing a system prompt for the model.",
+        },
+    },
 )
-@validated(op = 'chat')
+@validated(op="chat")
 def chat_endpoint(event, context, current_user, name, data):
-    access = data['allowed_access']
-    if ('chat' not in access and 'full_access' not in access):
-        return {'success': False, 'message': 'API key does not have access to chat functionality'}
+    access = data["allowed_access"]
+    if "chat" not in access and "full_access" not in access:
+        return {
+            "success": False,
+            "message": "API key does not have access to chat functionality",
+        }
     try:
-        
-        chat_endpoint = get_chat_endpoint()
-        if (not chat_endpoint):
-            return {"success": False, "message": "We are unable to make the request. Error: No chat endpoint found."}
-        access_token = data['access_token']
 
-        payload = data['data']
+        chat_endpoint = get_chat_endpoint()
+        if not chat_endpoint:
+            return {
+                "success": False,
+                "message": "We are unable to make the request. Error: No chat endpoint found.",
+            }
+        access_token = data["access_token"]
+
+        payload = data["data"]
         payload_options = payload["options"]
         payload["model"] = payload_options["model"]["id"]
         messages = payload["messages"]
 
         SYSTEM_ROLE = "system"
-        if (messages[0]["role"] != SYSTEM_ROLE):
+        if messages[0]["role"] != SYSTEM_ROLE:
             print("Adding system prompt message")
             user_prompt = payload_options.get("prompt", "No Prompt Provided")
-            payload["messages"] = [{"role": SYSTEM_ROLE, "content": user_prompt}] + messages
+            payload["messages"] = [
+                {"role": SYSTEM_ROLE, "content": user_prompt}
+            ] + messages
 
         response, metadata = chat(chat_endpoint, access_token, payload)
-        return {"success": True, "message": "Chat endpoint response retrieved", "data": response}
+        return {
+            "success": True,
+            "message": "Chat endpoint response retrieved",
+            "data": response,
+        }
     except Exception as e:
         return {"success": False, "message": {f"Error: {e}"}}
-    
+
 
 def get_chat_endpoint():
-    secret_name = os.environ['APP_ARN_NAME']
-    region_name = os.environ.get('AWS_REGION', 'us-east-1')
+    secret_name = os.environ["APP_ARN_NAME"]
+    region_name = os.environ.get("AWS_REGION", "us-east-1")
     # Create a Secrets Manager client
     session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
+    client = session.client(service_name="secretsmanager", region_name=region_name)
     try:
         print("Retrieving Chat Endpoint")
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
-        )
-        secret_string = get_secret_value_response['SecretString']
+        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+        secret_string = get_secret_value_response["SecretString"]
         secret_dict = json.loads(secret_string)
-        if ("CHAT_ENDPOINT" in secret_dict):
+        if "CHAT_ENDPOINT" in secret_dict:
             return secret_dict["CHAT_ENDPOINT"]
         print("Chat Endpoint Not Found")
     except ClientError as e:
         print(f"Error getting secret: {e}")
 
     return None
-

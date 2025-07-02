@@ -115,7 +115,7 @@ def report_generator(event, context, current_user, name, data):
     emails = body.get("emails")
 
     print("Emails:", emails)
-    
+
     if not isinstance(emails, list):
         emails = [emails]
 

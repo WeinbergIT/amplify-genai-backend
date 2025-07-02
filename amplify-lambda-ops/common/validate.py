@@ -48,10 +48,8 @@ body. You do NOT need to include the top-level "data" key in the schema.
 
 get_ops_schema = {
     "type": "object",
-    "properties": {
-        "tag": {"type": "string"}
-    },
-    "required": []
+    "properties": {"tag": {"type": "string"}},
+    "required": [],
 }
 
 register_ops_schema = {
@@ -69,15 +67,15 @@ register_ops_schema = {
                     "description": {"type": "string"},
                     "type": {"type": "string"},
                     "params": {
-                        "type" : "array", 
-                        "items" : {
+                        "type": "array",
+                        "items": {
                             "type": "object",
                             "properties": {
                                 "name": {"type": "string"},
                                 "description": {"type": "string"},
                             },
                             "required": ["name", "description"],
-                            "additionalProperties": False
+                            "additionalProperties": False,
                         },
                     },
                     "tags": {
@@ -86,11 +84,11 @@ register_ops_schema = {
                     },
                 },
                 "required": ["id", "method", "url", "name", "description", "params"],
-                "additionalProperties": True
+                "additionalProperties": True,
             },
         }
     },
-    "required": ["ops"]
+    "required": ["ops"],
 }
 
 delete_op_schema = {
@@ -108,11 +106,11 @@ delete_op_schema = {
                 },
             },
             "required": ["id", "url", "name", "tags"],
-            "additionalProperties": False
+            "additionalProperties": False,
         }
     },
     "required": ["op"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 """
@@ -120,36 +118,18 @@ Every service must define the permissions for each operation here.
 The permission is related to a request path and to a specific operation.
 """
 validators = {
-    "/ops/get": {
-        "get": get_ops_schema
-    },
-    "/ops/get_all_tags":
-    {
-        "get": {}
-    },
-    "/ops/get_all": {
-        "get": {}
-    },
-    "/ops/register" : {
-        "write": register_ops_schema
-    },
-    "/ops/delete" : {
-        "delete": delete_op_schema
-    }
+    "/ops/get": {"get": get_ops_schema},
+    "/ops/get_all_tags": {"get": {}},
+    "/ops/get_all": {"get": {}},
+    "/ops/register": {"write": register_ops_schema},
+    "/ops/delete": {"delete": delete_op_schema},
 }
 
 
 api_validators = {
-     "/ops/get": {
-        "get": {}
-    },
-    "/ops/register" : {
-        "write": register_ops_schema
-    },
-    "/ops/get_all_tags":
-        {
-            "get": {}
-        },
+    "/ops/get": {"get": {}},
+    "/ops/register": {"write": register_ops_schema},
+    "/ops/get_all_tags": {"get": {}},
 }
 
 
@@ -172,11 +152,11 @@ def parse_and_validate(current_user, event, op, api_accessed, validate_body=True
     data = {}
     if validate_body:
         try:
-            data = json.loads(event['body']) if event.get('body') else {}
+            data = json.loads(event["body"]) if event.get("body") else {}
         except json.decoder.JSONDecodeError as e:
             raise BadRequest("Unable to parse JSON body.")
 
-    name = event['path']
+    name = event["path"]
 
     if not name:
         raise BadRequest("Unable to perform the operation, invalid request.")
@@ -196,7 +176,6 @@ def parse_and_validate(current_user, event, op, api_accessed, validate_body=True
     return [name, data]
 
 
-
 def validated(op, validate_body=True):
     def decorator(f):
         def wrapper(event, context):
@@ -210,7 +189,10 @@ def validated(op, validate_body=True):
                     else get_claims(event, context, token)
                 )
 
-                current_user = claims["username"]
+                if "custom:upn" in claims:
+                    current_user = claims["custom:upn"]
+                else:
+                    current_user = claims["username"]
                 print(f"User: {current_user}")
                 if current_user is None:
                     raise Unauthorized("User not found.")
@@ -248,10 +230,10 @@ def validated(op, validate_body=True):
 def get_claims(event, context, token):
     # https://cognito-idp.<Region>.amazonaws.com/<userPoolId>/.well-known/jwks.json
 
-    oauth_issuer_base_url = os.getenv('OAUTH_ISSUER_BASE_URL')
-    oauth_audience = os.getenv('OAUTH_AUDIENCE')
+    oauth_issuer_base_url = os.getenv("OAUTH_ISSUER_BASE_URL")
+    oauth_audience = os.getenv("OAUTH_AUDIENCE")
 
-    jwks_url = f'{oauth_issuer_base_url}/.well-known/jwks.json'
+    jwks_url = f"{oauth_issuer_base_url}/.well-known/jwks.json"
     jwks = requests.get(jwks_url).json()
 
     header = jwt.get_unverified_header(token)
@@ -263,7 +245,7 @@ def get_claims(event, context, token):
                 "kid": key["kid"],
                 "use": key["use"],
                 "n": key["n"],
-                "e": key["e"]
+                "e": key["e"],
             }
 
     if rsa_key:
@@ -272,60 +254,66 @@ def get_claims(event, context, token):
             rsa_key,
             algorithms=ALGORITHMS,
             audience=oauth_audience,
-            issuer=oauth_issuer_base_url
+            issuer=oauth_issuer_base_url,
         )
 
-        idp_prefix: str = os.getenv('IDP_PREFIX') or ''
+        idp_prefix: str = os.getenv("IDP_PREFIX") or ""
         idp_prefix = idp_prefix.lower()
         print(f"IDP_PREFIX from env: {idp_prefix}")
-        print(f"Original username: {payload['username']}")
+        if "custom:upn" in payload:
+            print(f' Original username from custom:upn: {payload["custom:upn"]}')
+        else:
+            print(f"Original username: {payload['username']}")
 
         def get_email(text: str):
             print(f"Input text: {text}")
             print(f"Checking if text starts with: {idp_prefix + '_'}")
 
-            if len(idp_prefix) > 0 and text.startswith(idp_prefix + '_'):
-                result = text.split(idp_prefix + '_', 1)[1]
+            if len(idp_prefix) > 0 and text.startswith(idp_prefix + "_"):
+                result = text.split(idp_prefix + "_", 1)[1]
                 print(f"Text matched pattern, returning: {result}")
                 return result
-            
+
             print(f"Text did not match pattern, returning original: {text}")
             return text
 
-        user = get_email(payload['username'])
-        print(f"Final user value: {user}")
+        if "custom:upn" in payload:
+            user = get_email(payload["custom:upn"])
+            print(f"User from custom:upn: {user}")
+        else:
+            user = get_email(payload["username"])
 
-        # grab deafault account from accounts table 
-        dynamodb = boto3.resource('dynamodb')
-        accounts_table_name = os.getenv('ACCOUNTS_DYNAMO_TABLE')
+        # grab deafault account from accounts table
+        dynamodb = boto3.resource("dynamodb")
+        accounts_table_name = os.getenv("ACCOUNTS_DYNAMO_TABLE")
         if not accounts_table_name:
             raise ValueError("ACCOUNTS_DYNAMO_TABLE is not provided.")
 
         table = dynamodb.Table(accounts_table_name)
         account = None
         try:
-            response = table.get_item(Key={'user': user})
-            if 'Item' not in response:
+            response = table.get_item(Key={"user": user})
+            if "Item" not in response:
                 raise ValueError(f"No item found for user: {user}")
 
-            accounts = response['Item'].get('accounts', [])
+            accounts = response["Item"].get("accounts", [])
             for acct in accounts:
-                if acct['isDefault']:
-                    account = acct['id']
-                    
+                if acct["isDefault"]:
+                    account = acct["id"]
+
         except Exception as e:
             print(f"Error retrieving default account: {e}")
 
-        if (not account):
+        if not account:
             print("setting account to general_account")
-            account = 'general_account'   
+            account = "general_account"
 
-        payload['account'] = account
-        payload['username'] = user
+        payload["account"] = account
+        payload["username"] = user
         # Here we can established the allowed access according to the feature flags in the future
         # For now it is set to full_access, which says they can do the operation upon entry of the validated function
         # current access types include: asssistants, share, dual_embedding, chat, file_upload
-        payload['allowed_access'] =  ['full_access']
+        payload["allowed_access"] = ["full_access"]
         return payload
     else:
         print("No RSA Key Found, likely an invalid OAUTH_ISSUER_BASE_URL")
@@ -336,21 +324,21 @@ def get_claims(event, context, token):
 
 def parseToken(event):
     token = None
-    normalized_headers = {k.lower(): v for k, v in event['headers'].items()}
-    authorization_key = 'authorization'
+    normalized_headers = {k.lower(): v for k, v in event["headers"].items()}
+    authorization_key = "authorization"
 
     if authorization_key in normalized_headers:
         parts = normalized_headers[authorization_key].split()
 
         if len(parts) == 2:
             scheme, token = parts
-            if scheme.lower() != 'bearer':
+            if scheme.lower() != "bearer":
                 token = None
 
     if not token:
         print("No Access Token Found")
         raise Unauthorized("No Access Token Found")
-    
+
     return token
 
 
@@ -358,8 +346,8 @@ def api_claims(event, context, token):
     print("API route was taken")
 
     # Set up DynamoDB connection
-    dynamodb = boto3.resource('dynamodb')
-    api_keys_table_name = os.getenv('API_KEYS_DYNAMODB_TABLE')
+    dynamodb = boto3.resource("dynamodb")
+    api_keys_table_name = os.getenv("API_KEYS_DYNAMODB_TABLE")
     if not api_keys_table_name:
         raise ValueError("API_KEYS_DYNAMODB_TABLE is not provided.")
 
@@ -368,57 +356,63 @@ def api_claims(event, context, token):
     try:
         # Retrieve item from DynamoDB
         response = table.query(
-            IndexName='ApiKeyIndex',
-            KeyConditionExpression='apiKey = :apiKeyVal',
-            ExpressionAttributeValues={
-                ':apiKeyVal': token
-            }
+            IndexName="ApiKeyIndex",
+            KeyConditionExpression="apiKey = :apiKeyVal",
+            ExpressionAttributeValues={":apiKeyVal": token},
         )
-        items = response['Items']
-
+        items = response["Items"]
 
         if not items:
             print("API key does not exist.")
             raise LookupError("API key not found.")
-        
+
         item = items[0]
 
         # Check if the API key is active
-        if (not item.get('active', False)):
+        if not item.get("active", False):
             print("API key is inactive.")
             raise PermissionError("API key is inactive.")
 
         # Optionally check the expiration date if applicable
-        if (item.get('expirationDate') and datetime.strptime(item['expirationDate'], "%Y-%m-%d") <= datetime.now()):
+        if (
+            item.get("expirationDate")
+            and datetime.strptime(item["expirationDate"], "%Y-%m-%d") <= datetime.now()
+        ):
             print("API key has expired.")
             raise PermissionError("API key has expired.")
 
         # Check for access rights
-        access = item.get('accessTypes', [])
+        access = item.get("accessTypes", [])
         # if ('ops' not in access):
         #     # and 'full_access' not in access
         #     print("API doesn't have access to api key functionality")
         #     raise PermissionError("API key does not have access to api key functionality")
-        
+
         # Determine API user
         current_user = determine_api_user(item)
-        
-        rate_limit = item['rateLimit']
+
+        rate_limit = item["rateLimit"]
         if is_rate_limited(current_user, rate_limit):
-                    rate = float(rate_limit['rate'])
-                    period = rate_limit['period']
-                    print(f"You have exceeded your rate limit of ${rate:.2f}/{period}")
-                    raise Unauthorized(f"You have exceeded your rate limit of ${rate:.2f}/{period}")
+            rate = float(rate_limit["rate"])
+            period = rate_limit["period"]
+            print(f"You have exceeded your rate limit of ${rate:.2f}/{period}")
+            raise Unauthorized(
+                f"You have exceeded your rate limit of ${rate:.2f}/{period}"
+            )
 
         # Update last accessed
         table.update_item(
-            Key={'api_owner_id': item['api_owner_id']},
+            Key={"api_owner_id": item["api_owner_id"]},
             UpdateExpression="SET lastAccessed = :now",
-            ExpressionAttributeValues={':now': datetime.now().isoformat()}
+            ExpressionAttributeValues={":now": datetime.now().isoformat()},
         )
         print("Last Access updated")
 
-        return {'username': current_user, 'account': item['account'], 'allowed_access': access}
+        return {
+            "username": current_user,
+            "account": item["account"],
+            "allowed_access": access,
+        }
 
     except Exception as e:
         print("Error during DynamoDB operation:", str(e))
@@ -427,52 +421,54 @@ def api_claims(event, context, token):
 
 def determine_api_user(data):
     key_type_pattern = r"/(.*?)Key/"
-    match = re.search(key_type_pattern, data['api_owner_id'])
+    match = re.search(key_type_pattern, data["api_owner_id"])
     key_type = match.group(1) if match else None
 
-    if key_type == 'owner':
-        return data.get('owner')
-    elif key_type == 'delegate':
-        return data.get('delegate')
-    elif key_type == 'system':
-        return data.get('systemId')
+    if key_type == "owner":
+        return data.get("owner")
+    elif key_type == "delegate":
+        return data.get("delegate")
+    elif key_type == "system":
+        return data.get("systemId")
     else:
         print("Unknown or missing key type in api_owner_id:", key_type)
         raise Exception("Invalid or unrecognized key type.")
-    
 
 
-
-def is_rate_limited(current_user, rate_limit): 
+def is_rate_limited(current_user, rate_limit):
     print(rate_limit)
-    if rate_limit['period'] == 'Unlimited': return False
+    if rate_limit["period"] == "Unlimited":
+        return False
 
-    cost_calc_table = os.getenv('COST_CALCULATIONS_DYNAMO_TABLE')
+    cost_calc_table = os.getenv("COST_CALCULATIONS_DYNAMO_TABLE")
     if not cost_calc_table:
-        raise ValueError("COST_CALCULATIONS_DYNAMO_TABLE is not provided in the environment variables.")
+        raise ValueError(
+            "COST_CALCULATIONS_DYNAMO_TABLE is not provided in the environment variables."
+        )
 
-    dynamodb = boto3.resource('dynamodb')
+    dynamodb = boto3.resource("dynamodb")
     table = dynamodb.Table(cost_calc_table)
 
     try:
         print("Query cost calculation table")
-        response = table.query(
-            KeyConditionExpression=Key('id').eq(current_user) 
-        )
-        items = response['Items']
+        response = table.query(KeyConditionExpression=Key("id").eq(current_user))
+        items = response["Items"]
         if not items:
             print("Table entry does not exist. Cannot verify if rate limited.")
             return False
 
-        rate_data = items[0] 
+        rate_data = items[0]
 
-        period = rate_limit['period']
+        period = rate_limit["period"]
         col_name = f"{period.lower()}Cost"
 
         spent = rate_data[col_name]
-        if (period == 'Hourly'): spent = spent[datetime.now().hour] # Get the current hour as a number from 0 to 23
+        if period == "Hourly":
+            spent = spent[
+                datetime.now().hour
+            ]  # Get the current hour as a number from 0 to 23
         print(f"Amount spent {spent}")
-        return spent >= rate_limit['rate']
+        return spent >= rate_limit["rate"]
 
     except Exception as error:
         print(f"Error during rate limit DynamoDB operation: {error}")

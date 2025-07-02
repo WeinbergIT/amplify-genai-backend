@@ -1,6 +1,5 @@
-
-#Copyright (c) 2024 Vanderbilt University  
-#Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
+# Copyright (c) 2024 Vanderbilt University
+# Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
 
 import os
 import copy
@@ -14,37 +13,36 @@ def extract_key(source):
 
 
 def translate_user_data_sources_to_hash_data_sources(data_sources):
-    dynamodb_client = boto3.client('dynamodb')
-    hash_files_table_name = os.environ['HASH_FILES_DYNAMO_TABLE']
+    dynamodb_client = boto3.client("dynamodb")
+    hash_files_table_name = os.environ["HASH_FILES_DYNAMO_TABLE"]
     type_deserializer = TypeDeserializer()
 
     translated_data_sources = []
 
     for ds in data_sources:
-        key = ds['id']
+        key = ds["id"]
 
         try:
             if key.startswith("s3://"):
                 key = extract_key(key)
 
-            if ("image/" in ds['type']):
+            if "image/" in ds["type"]:
                 print("image key: ", key)
-                # overwrite the id and append to list as it 
-                ds['id'] = key
+                # overwrite the id and append to list as it
+                ds["id"] = key
                 translated_data_sources.append(ds)
                 continue
 
             response = dynamodb_client.get_item(
-                TableName=hash_files_table_name,
-                Key={
-                    'id': {'S': key}
-                }
+                TableName=hash_files_table_name, Key={"id": {"S": key}}
             )
 
-            item = response.get('Item')
+            item = response.get("Item")
             if item:
-                deserialized_item = {k: type_deserializer.deserialize(v) for k, v in item.items()}
-                ds['id'] = deserialized_item['textLocationKey']
+                deserialized_item = {
+                    k: type_deserializer.deserialize(v) for k, v in item.items()
+                }
+                ds["id"] = deserialized_item["textLocationKey"]
         except Exception as e:
             print(e)
             pass
@@ -54,33 +52,35 @@ def translate_user_data_sources_to_hash_data_sources(data_sources):
     return [ds for ds in translated_data_sources if ds is not None]
 
 
-
 def get_data_source_keys(data_sources):
     print("Get keys from data sources")
     data_sources_keys = []
     for i in range(len(data_sources)):
         ds = data_sources[i]
-        if ('metadata' in ds and "image/" in ds['type']):
-            data_sources_keys.append( extract_key(ds['id']))
+        if "metadata" in ds and "image/" in ds["type"]:
+            data_sources_keys.append(extract_key(ds["id"]))
             continue
         # print("current datasource: ", ds)
-        key = ''
-        if (ds['id'].startswith("global/")):
-            key = ds['id']
+        key = ""
+        if ds["id"].startswith("global/"):
+            key = ds["id"]
         else:
-            if (ds["id"].startswith("s3://global/")):
-                key = extract_key(ds['id'])
+            if ds["id"].startswith("s3://global/"):
+                key = extract_key(ds["id"])
             else:
                 ds_copy = copy.deepcopy(ds)
                 # Assistant attached data sources tends to have id vals of uuids vs they key we need
-                if ('key' in ds):
-                    ds_copy['id'] = ds["key"]
+                if "key" in ds:
+                    ds_copy["id"] = ds["key"]
 
-                key = translate_user_data_sources_to_hash_data_sources([ds_copy])[0]['id']  
+                key = translate_user_data_sources_to_hash_data_sources([ds_copy])[0][
+                    "id"
+                ]
 
             print("Updated Key: ", key)
 
-        if (not key): return {'success': False, 'error': 'Could not extract key'}
+        if not key:
+            return {"success": False, "error": "Could not extract key"}
         data_sources_keys.append(key)
 
     print("Datasource Keys: ", data_sources_keys)

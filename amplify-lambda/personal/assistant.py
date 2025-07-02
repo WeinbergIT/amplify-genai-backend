@@ -1,6 +1,5 @@
-
-#Copyright (c) 2024 Vanderbilt University  
-#Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
+# Copyright (c) 2024 Vanderbilt University
+# Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
 
 import hashlib
 import json
@@ -15,11 +14,11 @@ import boto3
 from botocore.exceptions import ClientError
 from files.file import update_file_tags, create_file_metadata_entry
 
-organization_email_domain = os.environ['ORGANIZATION_EMAIL_DOMAIN']
+organization_email_domain = os.environ["ORGANIZATION_EMAIL_DOMAIN"]
 
 
 def parse_email(email):
-    pattern = re.compile(r'^(?P<user>[^+@]+)(\+(?P<tag>[^@]+))?@(?P<domain>[^@]+)$')
+    pattern = re.compile(r"^(?P<user>[^+@]+)(\+(?P<tag>[^@]+))?@(?P<domain>[^@]+)$")
     match = pattern.match(email)
 
     if match:
@@ -29,13 +28,13 @@ def parse_email(email):
 
 
 def get_item_from_dynamodb(email, tag):
-    dynamodb = boto3.resource('dynamodb')
-    table_name = os.environ['EMAIL_SETTINGS_DYNAMO_TABLE']
+    dynamodb = boto3.resource("dynamodb")
+    table_name = os.environ["EMAIL_SETTINGS_DYNAMO_TABLE"]
     table = dynamodb.Table(table_name)
 
     try:
-        response = table.get_item(Key={'email': email, 'tag': tag})
-        return response.get('Item', None)
+        response = table.get_item(Key={"email": email, "tag": tag})
+        return response.get("Item", None)
     except ClientError as e:
         raise Exception(f"An error occurred: {e.response['Error']['Message']}")
 
@@ -54,14 +53,14 @@ def check_allowed_senders(allowed_patterns, input_string):
 
 def get_target_s3_key_base(email, tag, email_id):
     # Turn the current date into a string
-    dt_string = datetime.now().strftime('%Y-%m-%d')
+    dt_string = datetime.now().strftime("%Y-%m-%d")
 
     return f"{email}/ingest/email/{tag}/{dt_string}/{email_id}"
 
 
 def extract_email_body_and_attachments(sns_message):
     # The given steps remain the same, except for the part dealing with content disposition
-    encoded_content = sns_message['content']
+    encoded_content = sns_message["content"]
 
     # Decode the Base64-encoded email content
     decoded_content = base64.b64decode(encoded_content)
@@ -79,13 +78,17 @@ def extract_email_body_and_attachments(sns_message):
         if content_disposition:  # This part is an attachment or inlined content
             # Use the get_content_disposition() method to check disposition type
             disposition = part.get_content_disposition()
-            if disposition == "attachment" or (disposition == "inline" and part.get_filename()):
+            if disposition == "attachment" or (
+                disposition == "inline" and part.get_filename()
+            ):
                 attachment_data = part.get_payload(decode=True)
-                attachments.append({
-                    "filename": part.get_filename(),
-                    "content": attachment_data,
-                    "content_type": content_type
-                })
+                attachments.append(
+                    {
+                        "filename": part.get_filename(),
+                        "content": attachment_data,
+                        "content_type": content_type,
+                    }
+                )
         elif content_type == "text/plain" and body_plain is None:  # Plain text body
             body_plain = part.get_payload(decode=True)
         elif content_type == "text/html" and body_html is None:  # HTML body
@@ -93,9 +96,9 @@ def extract_email_body_and_attachments(sns_message):
 
     # Return the extracted content
     return {
-        "body_plain": body_plain.decode('utf-8') if body_plain else None,
-        "body_html": body_html.decode('utf-8') if body_html else None,
-        "attachments": attachments
+        "body_plain": body_plain.decode("utf-8") if body_plain else None,
+        "body_html": body_html.decode("utf-8") if body_html else None,
+        "attachments": attachments,
     }
 
 
@@ -103,34 +106,39 @@ def find_hash_tags(text):
     """
     Finds all tags that start with '#' in the given text, strips off the '#', and returns them as a list.
     """
-    return [tag[1:] for tag in re.findall(r'#\w+', text)]
+    return [tag[1:] for tag in re.findall(r"#\w+", text)]
 
 
 def sanitize_filename(filename):
     """Sanitize the filename to be safe for S3 keys."""
     # Replace ".." with ".", remove leading/trailing periods or slashes
-    sanitized = re.sub(r'\.{2,}', '.', filename).strip(".")
+    sanitized = re.sub(r"\.{2,}", ".", filename).strip(".")
     # Replace any remaining special characters with an underscore
-    sanitized = re.sub(r'[^\w\-_\.]', '_', sanitized)
+    sanitized = re.sub(r"[^\w\-_\.]", "_", sanitized)
     return sanitized
 
 
 def save_email_to_s3(current_user, email_details, tags):
     # Create an S3 client
-    s3 = boto3.client('s3')
+    s3 = boto3.client("s3")
 
-    email_content = email_details['contents']
+    email_content = email_details["contents"]
     # Determine the body content to save (1)
-    body = email_content['body_plain'] if email_content['body_plain'] else email_content['body_html']
+    body = (
+        email_content["body_plain"]
+        if email_content["body_plain"]
+        else email_content["body_html"]
+    )
 
     # create a random uuid for the email
-    email_subject = email_details['subject']
-    email_sender = email_details['sender']
-    email_time = email_details['timestamp'],
+    email_subject = email_details["subject"]
+    email_sender = email_details["sender"]
+    email_time = (email_details["timestamp"],)
     email_base_name = f"Email {email_subject} from {email_sender} at {email_time}"
     email_file_name = f"{email_base_name}.json"
-    bucket_name, body_key = create_file_metadata_entry(current_user, email_file_name, "application/json", tags, {},
-                                                       "email")
+    bucket_name, body_key = create_file_metadata_entry(
+        current_user, email_file_name, "application/json", tags, {}, "email"
+    )
 
     email_to_save_string = (
         f"timestamp: {email_details['timestamp']}\n"
@@ -155,14 +163,15 @@ def save_email_to_s3(current_user, email_details, tags):
     print(f"Saved email body to s3://{bucket_name}/{body_key}")
 
     # Loop through and save all attachments (2)
-    for attachment in email_content['attachments']:
-        file_name = attachment['filename']
+    for attachment in email_content["attachments"]:
+        file_name = attachment["filename"]
         file_name = sanitize_filename(file_name)
-        file_content = attachment['content']
+        file_content = attachment["content"]
 
-        content_type = attachment['content_type']
-        attach_bucket_name, attach_body_key = create_file_metadata_entry(current_user, file_name, content_type, tags,
-                                                                         {}, "email")
+        content_type = attachment["content_type"]
+        attach_bucket_name, attach_body_key = create_file_metadata_entry(
+            current_user, file_name, content_type, tags, {}, "email"
+        )
 
         # Save the file to S3
         s3.put_object(Bucket=attach_bucket_name, Key=attach_body_key, Body=file_content)
@@ -173,35 +182,39 @@ def save_email_to_s3(current_user, email_details, tags):
 def index_email(parsed_destination_email, source_email, ses_notification):
     print(f"Indexing email from {source_email} to {parsed_destination_email}")
 
-    mail_data = ses_notification['mail']
-    receipt_data = ses_notification['receipt']
+    mail_data = ses_notification["mail"]
+    receipt_data = ses_notification["receipt"]
 
     # Prepare the returned dictionary
     email_details = {
-        'sender': source_email,
-        'timestamp': mail_data['timestamp'],
-        'subject': mail_data.get('commonHeaders', {}).get('subject', 'No Subject'),
-        'recipients': mail_data['destination'],  # Extract recipients
-        'contents': ses_notification['content']  # This assumes 'contents' refers to the email subject
+        "sender": source_email,
+        "timestamp": mail_data["timestamp"],
+        "subject": mail_data.get("commonHeaders", {}).get("subject", "No Subject"),
+        "recipients": mail_data["destination"],  # Extract recipients
+        "contents": ses_notification[
+            "content"
+        ],  # This assumes 'contents' refers to the email subject
     }
 
     # Create a hash of the ses_notification
-    serialized_data = json.dumps(email_details).encode('utf-8')
+    serialized_data = json.dumps(email_details).encode("utf-8")
     email_id = hashlib.sha256(serialized_data).hexdigest()
     # We wait to put the received time in so that we can detect duplicate emails based on
     # the same sender/recipients and contents.
-    email_details['received_time'] = mail_data['timestamp']
+    email_details["received_time"] = mail_data["timestamp"]
     parsed_email = extract_email_body_and_attachments(ses_notification)
-    email_details['contents'] = parsed_email
+    email_details["contents"] = parsed_email
 
     user_email = f"{parsed_destination_email['user']}@{organization_email_domain}"
-    project_tag = parsed_destination_email['tag'] if parsed_destination_email['tag'] else 'email'
+    project_tag = (
+        parsed_destination_email["tag"] if parsed_destination_email["tag"] else "email"
+    )
 
     print(f"Email ID: {email_id}")
     s3_key = get_target_s3_key_base(user_email, project_tag, email_id)
     print(f"S3 Key Base: {s3_key}")
 
-    email_subject = email_details['subject']
+    email_subject = email_details["subject"]
     email_subject_tags = find_hash_tags(email_subject)
     print(f"Email Subject Tags: {email_subject_tags}")
 
@@ -216,21 +229,23 @@ def index_email(parsed_destination_email, source_email, ses_notification):
 
 
 def process_email(event, context):
-    ses_notification = event['Records'][0]['Sns']['Message']
+    ses_notification = event["Records"][0]["Sns"]["Message"]
     ses_notification = json.loads(ses_notification)
 
     # Check if any spam check failed
-    if (ses_notification['receipt']['spfVerdict']['status'] == 'FAIL' or
-            ses_notification['receipt']['dkimVerdict']['status'] == 'FAIL' or
-            ses_notification['receipt']['spamVerdict']['status'] == 'FAIL' or
-            ses_notification['receipt']['virusVerdict']['status'] == 'FAIL'):
-        print('Dropping spam')
+    if (
+        ses_notification["receipt"]["spfVerdict"]["status"] == "FAIL"
+        or ses_notification["receipt"]["dkimVerdict"]["status"] == "FAIL"
+        or ses_notification["receipt"]["spamVerdict"]["status"] == "FAIL"
+        or ses_notification["receipt"]["virusVerdict"]["status"] == "FAIL"
+    ):
+        print("Dropping spam")
         # Stop processing rule set, dropping message
-        return {'disposition': 'STOP_RULE_SET'}
+        return {"disposition": "STOP_RULE_SET"}
     else:
 
-        source_email = ses_notification['mail']['source']
-        destination_emails = ses_notification['mail']['destination']
+        source_email = ses_notification["mail"]["source"]
+        destination_emails = ses_notification["mail"]["destination"]
 
         print(f"Source Email: {source_email}")
         print(f"Destination Emails: {destination_emails}")
@@ -242,8 +257,8 @@ def process_email(event, context):
         for email in parsed_destination_emails:
             print(f"Parsed Destination Email: {json.dumps(email, indent=2)}")
 
-            tag = email['tag'] if email['tag'] else 'default'
-            email['tag'] = tag
+            tag = email["tag"] if email["tag"] else "default"
+            email["tag"] = tag
             print(f"Tag: {tag}")
 
             target_email_lookup = f"{email['user']}@{email['domain']}"
@@ -260,12 +275,14 @@ def process_email(event, context):
                 return index_email(email, source_email, ses_notification)
 
             # Check if the soource email is in the settings.allowedSenders list
-            elif settings and check_allowed_senders(settings.get('allowedSenders', []), source_email):
+            elif settings and check_allowed_senders(
+                settings.get("allowedSenders", []), source_email
+            ):
                 print(f"Sender is allowed by settings")
                 return index_email(email, source_email, ses_notification)
 
             else:
                 print(f"Sender is not allowed")
-                return {'disposition': 'STOP_RULE_SET'}
+                return {"disposition": "STOP_RULE_SET"}
 
         return None

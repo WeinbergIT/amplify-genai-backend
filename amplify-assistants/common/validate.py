@@ -1,6 +1,5 @@
-
-#Copyright (c) 2024 Vanderbilt University  
-#Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
+# Copyright (c) 2024 Vanderbilt University
+# Authors: Jules White, Allen Karns, Karely Rodriguez, Max Moundas
 
 from common.permissions import get_permission_checker
 import json
@@ -374,12 +373,10 @@ validators = {
     "/assistant/get_group_assistant_dashboards": {
         "get_group_assistant_dashboards": get_group_assistant_dashboards_schema
     },
-    "/assistant/save_user_rating": {
-        "save_user_rating": save_user_rating_schema
-    },
+    "/assistant/save_user_rating": {"save_user_rating": save_user_rating_schema},
     "/assistant/get_group_conversations_data": {
         "get_group_conversations_data": get_group_conversations_data_schema
-    }
+    },
 }
 
 api_validators = {
@@ -407,12 +404,10 @@ api_validators = {
     "/assistant/get_group_assistant_dashboards": {
         "get_group_assistant_dashboards": get_group_assistant_dashboards_schema
     },
-    "/assistant/save_user_rating": {
-        "save_user_rating": save_user_rating_schema
-    },
+    "/assistant/save_user_rating": {"save_user_rating": save_user_rating_schema},
     "/assistant/get_group_conversations_data": {
         "get_group_conversations_data": get_group_conversations_data_schema
-    }
+    },
 }
 
 
@@ -539,7 +534,7 @@ def get_claims(event, context, token):
             issuer=oauth_issuer_base_url,
         )
 
-        idp_prefix: str = os.getenv('IDP_PREFIX') or ''
+        idp_prefix: str = os.getenv("IDP_PREFIX") or ""
         idp_prefix = idp_prefix.lower()
         print(f"IDP_PREFIX from env: {idp_prefix}")
         print(f"Original username: {payload['username']}")
@@ -548,15 +543,15 @@ def get_claims(event, context, token):
             print(f"Input text: {text}")
             print(f"Checking if text starts with: {idp_prefix + '_'}")
 
-            if len(idp_prefix) > 0 and text.startswith(idp_prefix + '_'):
-                result = text.split(idp_prefix + '_', 1)[1]
+            if len(idp_prefix) > 0 and text.startswith(idp_prefix + "_"):
+                result = text.split(idp_prefix + "_", 1)[1]
                 print(f"Text matched pattern, returning: {result}")
                 return result
-            
+
             print(f"Text did not match pattern, returning original: {text}")
             return text
 
-        user = get_email(payload['username'])
+        user = get_email(payload["username"])
         print(f"Final user value: {user}")
 
         # grab deafault account from accounts table
