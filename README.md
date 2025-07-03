@@ -1,4 +1,4 @@
-# amplify-genai-backend
+# amplify-genai-backend modified for Weinberg
 
 ## Overview
 
